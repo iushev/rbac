@@ -1,7 +1,7 @@
 import HttpStatus from "http-status-codes";
 import path from "path";
 
-import { BaseManager, User, Identity, checkAccess, JsonManager } from "rbac";
+import { BaseManager, User, Identity, checkAccess, JsonManager } from "@iushev/rbac";
 
 describe("Testing check access middleware", () => {
   let authManager: BaseManager;

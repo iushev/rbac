@@ -6,7 +6,7 @@ declare namespace Express {
     isSuperuser: boolean;
     isGuest: boolean;
     can(permissionName: string, params?: RuleParams, allowCaching?: boolean): Promise<boolean>;
-  };
+  }
 
   interface Request {
     authManager: BaseManager;

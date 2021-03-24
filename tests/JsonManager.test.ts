@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 
-import { JsonManager } from "rbac";
+import { JsonManager } from "@iushev/rbac";
 
 import authManagerTest from "./AuthManager";
 

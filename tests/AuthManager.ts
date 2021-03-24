@@ -1,4 +1,4 @@
-import { BaseManager, Item, ItemType, Permission, Role, Rule, RuleParams } from "rbac";
+import { BaseManager, Item, ItemType, Permission, Role, Rule, RuleParams } from "@iushev/rbac";
 
 export interface AuthorRuleData {
   reallyReally: boolean;
