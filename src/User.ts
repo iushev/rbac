@@ -7,8 +7,7 @@ export interface Identity {
   isSuperuser: boolean;
 }
 
-
-export default class User implements Express.User {
+export default class User {
   private _identity: Identity | false = false;
   private access: { [key: string]: boolean } = {};
   private authManager: BaseManager;

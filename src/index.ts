@@ -1,10 +1,11 @@
 import Rbac from "./Rbac";
+import RbacUser, { Identity } from "./User";
+import BaseManager, { BaseManagerOptions } from "./BaseManager";
+
 export { Assignment } from "./Assignment";
-export { default as BaseManager, BaseManagerOptions } from "./BaseManager";
 export { JsonManager, JsonManagerOptions } from "./JsonManager";
 export { ItemType, Item, Role, Permission } from "./Item";
 export { RuleParams, Rule, RuleExecuteFunction } from "./Rule";
-export { default as User, Identity } from "./User";
 export {
   default as checkAccess,
   CheckAccessOptions,
@@ -12,6 +13,20 @@ export {
   RoleParamsFunction,
   MatchFunction,
 } from "./middleware/checkAccess";
+
+export { RbacUser as User, Identity, BaseManager, BaseManagerOptions };
+
+declare global {
+  namespace Express {
+    export interface User extends RbacUser {}
+
+    export interface Request {
+      authManager: BaseManager;
+      user?: User;
+    }
+  }
+}
+
 
 const rbacManager = new Rbac();
 

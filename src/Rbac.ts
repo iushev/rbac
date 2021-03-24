@@ -8,7 +8,7 @@ export type RbacOptions = {
 };
 
 export default class Rbac {
-  private authManager: BaseManager | null = null;
+  private authManager!: BaseManager;
   private rbacPath: string = "/rbac";
 
   initialize(options: RbacOptions) {
