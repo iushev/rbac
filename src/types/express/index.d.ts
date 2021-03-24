@@ -1,5 +1,5 @@
 declare namespace Express {
-  interface User {
+  export interface User {
     identity: Identity | false;
     username: string | false;
     isActive: boolean;
@@ -8,7 +8,7 @@ declare namespace Express {
     can(permissionName: string, params?: RuleParams, allowCaching?: boolean): Promise<boolean>;
   }
 
-  interface Request {
+  export interface Request {
     authManager: BaseManager;
     user: User;
   }

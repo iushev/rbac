@@ -6,6 +6,7 @@
   "description": "Role Based Access Control",
   "license": "ISC",
   "main": "./build",
+  "types": "./build/types",
   "scripts": {
     "build": "tsc -p ./src && npm run copy-dts",
     "watch": "tsc -w -p ./src",
