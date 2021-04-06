@@ -66,6 +66,7 @@ describe("RBAC Server", () => {
     }
 
     const response = await supertest(httpServer).get("/api/rbac");
+    console.log(JSON.stringify(response.body, null, 2));
     expect(response).toBeTruthy();
     expect(response.body.items).toBeTruthy();
     expect(response.body.rules).toBeTruthy();

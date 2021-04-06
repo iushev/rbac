@@ -88,18 +88,13 @@ export class Server {
         return assignments;
       };
 
-      const roles = await itemsToObject(await req.authManager.getRoles());
-      const permissions = await itemsToObject(await req.authManager.getPermissions());
-      const rules = rulesToObject(await req.authManager.getRules());
-      const assignments = assignmentsToObject(await req.authManager.getAssignments(req.user.username));
+      const { items, rules } = await req.authManager.getRBAC();
+      const assignments = await req.authManager.getAssignments(req.user.username);
 
       res.status(HttpStatus.OK).json({
-        items: {
-          ...roles,
-          ...permissions,
-        },
-        rules,
-        assignments,
+        items: await itemsToObject(items),
+        rules: rulesToObject(rules),
+        assignments: assignmentsToObject(assignments),
       });
     } catch (err) {
       next(err);

@@ -116,6 +116,10 @@ export default abstract class BaseManager implements ManagerInterface {
       await this.load();
     }
 
+    return {
+      items: _.cloneDeep(this.items),
+      rules: _.cloneDeep(this.rules),
+    }
   }
 
   /**
