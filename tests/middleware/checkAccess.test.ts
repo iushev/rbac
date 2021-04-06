@@ -1,7 +1,7 @@
 import HttpStatus from "http-status-codes";
 import path from "path";
 
-import { BaseManager, User, Identity, checkAccess, JsonManager } from "@iushev/rbac";
+import { BaseManager, User, Identity, checkAccess, JsonManager } from "../../src";
 
 describe("Testing check access middleware", () => {
   let authManager: BaseManager;
@@ -25,11 +25,11 @@ describe("Testing check access middleware", () => {
     isSuperuser: false,
   };
 
-  beforeAll(async () => {
+  beforeAll(() => {
     authManager = new JsonManager({
-      itemFile: path.join(__dirname, "/rbac_items.json"),
-      assignmentFile: path.join(__dirname, "/rbac_assignments.json"),
-      ruleFile: path.join(__dirname, "/rbac_rules.json"),
+      itemFile: path.join(__dirname, "../assets/rbac_items.json"),
+      assignmentFile: path.join(__dirname, "../assets/rbac_assignments.json"),
+      ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),
       logging: false,
     });
     user = new User(authManager);
@@ -117,6 +117,7 @@ describe("Testing check access middleware", () => {
 
     await checkAccess({
       roles: ["updatePost"],
+      allow: false,
       roleParams: { author: userAdmin.username },
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
@@ -124,6 +125,7 @@ describe("Testing check access middleware", () => {
 
     await checkAccess({
       roles: ["updatePost"],
+      allow: false,
       roleParams: () => ({ author: userAdmin.username }),
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);

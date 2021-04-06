@@ -36,7 +36,11 @@ export class JsonManager extends BaseManager {
    */
   protected assignments: Map<string, Map<string, Assignment>> = new Map();
 
-  constructor({ itemFile, assignmentFile, ruleFile, ...baseOptions }: JsonManagerOptions) {
+  /**
+   * Manager constructor
+   * @param options
+   */
+  public constructor({ itemFile, assignmentFile, ruleFile, ...baseOptions }: JsonManagerOptions) {
     super(baseOptions);
 
     this.itemFile = itemFile;
@@ -479,6 +483,7 @@ export class JsonManager extends BaseManager {
    * @inheritdoc
    */
   protected async load() {
+    this.log(`[JsonManager] Loading RBAC.`);
     this.invalidateRbac();
 
     const items = JSON.parse(await fs.readFile(this.itemFile, "utf-8"));
@@ -530,6 +535,19 @@ export class JsonManager extends BaseManager {
               itemName,
             })
           );
+        } else {
+          this.assignments.set(
+            username,
+            new Map([
+              [
+                itemName,
+                new Assignment({
+                  username,
+                  itemName,
+                }),
+              ],
+            ])
+          );
         }
       });
     });
@@ -569,7 +587,6 @@ export class JsonManager extends BaseManager {
         children: string[];
       };
     } = {};
-
     for (let [itemName, item] of this.items) {
       items[itemName] = {
         type: item.type,

@@ -111,6 +111,13 @@ export default abstract class BaseManager implements ManagerInterface {
     return this.checkAccessRecursive(username, permissionName, params, assignments);
   }
 
+  public async getRBAC() {
+    if (this.items.size === 0) {
+      await this.load();
+    }
+
+  }
+
   /**
    * @inheritdoc
    */

@@ -1,12 +1,14 @@
 import path from "path";
 import fs from "fs";
 
-import { JsonManager } from "@iushev/rbac";
+import { BaseManager, JsonManager } from "../src";
 
-import authManagerTest from "./AuthManager";
+import testAuthManager from "../src/testAuthManager";
 
 describe("Testing JsonManager", () => {
-  let auth = new JsonManager({
+  let auth: BaseManager;
+
+  auth = new JsonManager({
     itemFile: path.join(__dirname, "/rbacItems.json"),
     assignmentFile: path.join(__dirname, "/rbacAssignments.json"),
     ruleFile: path.join(__dirname, "/rbacRules.json"),
@@ -20,5 +22,7 @@ describe("Testing JsonManager", () => {
     fs.unlinkSync(path.join(__dirname, "/rbacRules.json"));
   });
 
-  authManagerTest(auth);
+  describe("AuthManager test", () => {
+    testAuthManager(auth);
+  });
 });

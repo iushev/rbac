@@ -2,6 +2,8 @@ import Rbac from "./Rbac";
 import RbacUser, { Identity } from "./User";
 import BaseManager, { BaseManagerOptions } from "./BaseManager";
 
+
+export { Server } from "./Server";
 export { Assignment } from "./Assignment";
 export { JsonManager, JsonManagerOptions } from "./JsonManager";
 export { ItemType, Item, Role, Permission } from "./Item";
@@ -13,6 +15,8 @@ export {
   RoleParamsFunction,
   MatchFunction,
 } from "./middleware/checkAccess";
+
+export { default as testAuthManager } from "./testAuthManager";
 
 export { RbacUser as User, Identity, BaseManager, BaseManagerOptions };
 
