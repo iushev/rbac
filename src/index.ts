@@ -2,12 +2,9 @@ import Rbac from "./Rbac";
 import RbacUser, { Identity } from "./User";
 import BaseManager, { BaseManagerOptions } from "./BaseManager";
 
-
-export { Server } from "./Server";
 export { Assignment } from "./Assignment";
-export { JsonManager, JsonManagerOptions } from "./JsonManager";
 export { ItemType, Item, Role, Permission } from "./Item";
-export { RuleParams, Rule, RuleExecuteFunction } from "./Rule";
+export { RuleParams, Rule, RuleExecuteFunction, RuleCtor } from "./Rule";
 export {
   default as checkAccess,
   CheckAccessOptions,
@@ -15,6 +12,7 @@ export {
   RoleParamsFunction,
   MatchFunction,
 } from "./middleware/checkAccess";
+export { getRbac, RBACResponse } from "./middleware/getRbac";
 
 export { default as testAuthManager } from "./testAuthManager";
 
@@ -30,7 +28,6 @@ declare global {
     }
   }
 }
-
 
 const rbacManager = new Rbac();
 

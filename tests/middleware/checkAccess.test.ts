@@ -1,7 +1,8 @@
 import HttpStatus from "http-status-codes";
 import path from "path";
 
-import { BaseManager, User, Identity, checkAccess, JsonManager } from "../../src";
+import { BaseManager, User, Identity, checkAccess } from "../../src";
+import MockManager from "./MockManager";
 
 describe("Testing check access middleware", () => {
   let authManager: BaseManager;
@@ -26,7 +27,7 @@ describe("Testing check access middleware", () => {
   };
 
   beforeAll(() => {
-    authManager = new JsonManager({
+    authManager = new MockManager({
       itemFile: path.join(__dirname, "../assets/rbac_items.json"),
       assignmentFile: path.join(__dirname, "../assets/rbac_assignments.json"),
       ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),

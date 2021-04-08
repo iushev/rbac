@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { Assignment } from "./Assignment";
+import CheckAccess from "./CheckAccess";
 
 import { Item, ItemType, Permission, Role } from "./Item";
-import { ManagerInterface } from "./ManagerInterface";
-import { Rule, RuleCtor, RuleParams } from "./Rule";
+import { Rule, RuleParams } from "./Rule";
 
 export interface BaseManagerOptions {
   defaultRoles?: string[];
@@ -13,53 +13,20 @@ export interface BaseManagerOptions {
 /**
  * Manager is a base class implementing for RBAC management.
  */
-export default abstract class BaseManager implements ManagerInterface {
-  /**
-   *
-   */
-  public readonly ruleClasses: Map<string, RuleCtor<Rule>> = new Map();
-
-  /**
-   * List of role names that are assigned to every user automatically without calling [[assign()]].
-   */
-  public readonly defaultRoles: string[];
-
+export default abstract class BaseManager extends CheckAccess {
   /**
    *
    */
   protected logging: false | ((sql: string, timing?: number) => void);
 
   /**
-   * Map itemName => Item
-   */
-  protected items: Map<string, Item> = new Map();
-
-  /**
-   * Map itemName => parentName => Item
-   * {
-   *   [childName: string]: {
-   *     [parentName: string]: parent
-   *   }
-   * }
-   */
-  protected parents: Map<string, Map<string, Item>> = new Map();
-
-  /**
-   * Map ruleName => Rule
-   */
-  protected rules: Map<string, Rule> = new Map();
-
-  /**
-   * Map username => assignmentName => Assignment
-   */
-  protected assignments: Map<string, Map<string, Assignment>> = new Map();
-
-  /**
    *
    * @param options
    */
   constructor(options?: BaseManagerOptions) {
-    this.defaultRoles = options?.defaultRoles || [];
+    super({
+      defaultRoles: options?.defaultRoles
+    })
 
     this.logging = Object.prototype.hasOwnProperty.call(options, "logging") ? options!.logging ?? false : console.log;
   }
@@ -91,26 +58,22 @@ export default abstract class BaseManager implements ManagerInterface {
     }
   }
 
-  protected invalidateRbac() {
-    // this.children.clear();
-    this.parents.clear();
-    this.items.clear();
-    this.rules.clear();
-    this.assignments.clear();
-  }
-
   /**
    * @inheritdoc
    */
-  public async checkAccess(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
+  public async checkAccessAsync(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
     this.log(`Checking access: username=${username}, permissionName=${permissionName}`);
     if (this.items.size === 0) {
       await this.load();
     }
     const assignments = await this.getAssignments(username);
-    return this.checkAccessRecursive(username, permissionName, params, assignments);
+    return super.checkAccess(username, permissionName, params, assignments);
   }
 
+  /**
+   *
+   * @returns
+   */
   public async getRBAC() {
     if (this.items.size === 0) {
       await this.load();
@@ -118,12 +81,28 @@ export default abstract class BaseManager implements ManagerInterface {
 
     return {
       items: _.cloneDeep(this.items),
+      parents: _.cloneDeep(this.parents),
       rules: _.cloneDeep(this.rules),
     }
   }
 
+  protected invalidateRbac() {
+    // this.children.clear();
+    this.parents.clear();
+    this.items.clear();
+    this.rules.clear();
+    // this.assignments.clear();
+  }
+
+
+  // #########################################################################################################
+
   /**
-   * @inheritdoc
+   * Creates a new Role object.
+   * Note that the newly created role is not added to the RBAC system yet.
+   * You must fill in the needed data and call [[add()]] to add it to the system.
+   * @param {string} name the role name
+   * @return {Role} the new Role object
    */
   public createRole(name: string): Role {
     const role = new Role({ name });
@@ -131,7 +110,11 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Creates a new Permission object.
+   * Note that the newly created permission is not added to the RBAC system yet.
+   * You must fill in the needed data and call [[add()]] to add it to the system.
+   * @param {string} name the permission name
+   * @return {Permission} the new Permission object
    */
   public createPermission(name: string): Permission {
     const permission = new Permission({ name });
@@ -139,7 +122,10 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Adds a role, permission or rule to the RBAC system.
+   * @param {Role | Permission | Rule} object
+   * @return {Promise<boolean>} whether the role, permission or rule is successfully added to the system
+   * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
   public async add(object: Role | Permission | Rule): Promise<boolean> {
     if (object instanceof Role || object instanceof Permission) {
@@ -157,7 +143,10 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Removes a role, permission or rule from the RBAC system.
+   * @param {Role | Permission | Rule} object
+   * @return {Promise<boolean>} whether the role, permission or rule is successfully removed
+   * @throws {Error}
    */
   public async remove(object: Role | Permission | Rule): Promise<boolean> {
     if (object instanceof Item) {
@@ -170,7 +159,10 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Updates the specified role, permission or rule in the system.
+   * @param {Role | Permission | Rule} object
+   * @return {Promise<boolean>} whether the update is successful
+   * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
   public async update(name: string, object: Role | Permission | Rule): Promise<boolean> {
     if (object instanceof Item) {
@@ -188,7 +180,9 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Returns the named role.
+   * @param {string} name the role name.
+   * @return {Promise<Role | null>} the role corresponding to the specified name. Null is returned if no such role.
    */
   public async getRole(name: string): Promise<Role | null> {
     const item = await this.getItem(name);
@@ -196,139 +190,194 @@ export default abstract class BaseManager implements ManagerInterface {
   }
 
   /**
-   * @inheritdoc
+   * Returns all roles in the system.
+   * @return {Promise<Map<string, Role>>} all roles in the system. The array is indexed by the role names.
    */
   public async getRoles(): Promise<Map<string, Role>> {
     return this.getItems(ItemType.role);
   }
 
   /**
-   * @inheritdoc
+   * Returns the roles that are assigned to the user via assign().
+   * Note that child roles that are not assigned directly to the user will not be returned.
+   * @param {string} username the user ID
+   * @return {Promise<Map<string, Role>>} all roles directly or indirectly assigned to the user. The array is indexed by the role names.
    */
   public abstract getRolesByUser(username: string): Promise<Map<string, Role>>;
 
   /**
-   * @inheritdoc
+   * Returns child roles of the role specified. Depth isn't limited.
+   * @param {string} roleName name of the role to file child roles for
+   * @return {Promise<Map<string, Role>>} Child roles. The array is indexed by the role names. First element is an instance of the parent Role itself.
+   * @throws {Error} if Role was not found that are getting by $roleName
    */
-  public abstract getChildRoles(roleName: string): Promise<Map<string, Role>>;
+   public abstract getChildRoles(roleName: string): Promise<Map<string, Role>>;
 
   /**
-   * @inheritdoc
+   * Returns the named permission.
+   * @param {string} name the permission name.
+   * @return {Promise<Permission | null>} the permission corresponding to the specified name. Null is returned if no such permission.
    */
-  public async getPermission(name: string): Promise<Permission | null> {
+   public async getPermission(name: string): Promise<Permission | null> {
     const item = await this.getItem(name);
     return item instanceof Item && item.type == ItemType.permission ? item : null;
   }
 
   /**
-   * @inheritdoc
+   * Returns all permissions in the system.
+   * @return {Promise<Map<string, Permission>>} all permissions in the system. The array is indexed by the permission names.
    */
   public async getPermissions(): Promise<Map<string, Permission>> {
     return this.getItems(ItemType.permission);
   }
 
   /**
-   * @inheritdoc
+   * Returns all permissions that the specified role represents.
+   * @param {string} roleName the role name
+   * @return {Promise<Map<string, Permission>>} all permissions that the role represents. The array is indexed by the permission names.
    */
   public abstract getPermissionsByRole(roleName: string): Promise<Map<string, Permission>>;
 
   /**
-   * @inheritdoc
+   * Returns all permissions that the user has.
+   * @param {string} username the username
+   * @return {Promise<Map<string, Permission>>} all permissions that the user has. The array is indexed by the permission names.
    */
   public abstract getPermissionsByUser(username: string): Promise<Map<string, Permission>>;
 
   /**
-   * @inheritdoc
+   * Returns the rule of the specified name.
+   * @param {string} name the rule name
+   * @return {Promise<Rule | null>} the rule object, or null if the specified name does not correspond to a rule.
    */
   public abstract getRule(name: string): Promise<Rule | null>;
 
   /**
-   * @inheritdoc
+   * Returns all rules available in the system.
+   * @return {Promise<Map<string, Rule>>} the rules indexed by the rule names
    */
   public abstract getRules(): Promise<Map<string, Rule>>;
 
   /**
-   * @inheritdoc
+   * Checks the possibility of adding a child to parent.
+   * @param {Item} parent the parent item
+   * @param {Item} child the child item to be added to the hierarchy
+   * @return {Promise<boolean>} possibility of adding
    */
   public abstract canAddChild(parent: Item, child: Item): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Adds an item as a child of another item.
+   * @param {Item} parent
+   * @param {Item} child
+   * @return {Promise<boolean>} whether the child successfully added
+   * @throws {Error} if the parent-child relationship already exists or if a loop has been detected.
    */
   public abstract addChild(parent: Item, child: Item): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Removes a child from its parent.
+   * Note, the child item is not deleted. Only the parent-child relationship is removed.
+   * @param {Item} parent
+   * @param {Item} child
+   * @return {Promise<boolean>} whether the removal is successful
    */
   public abstract removeChild(parent: Item, child: Item): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Remove all children from their parent.
+   * Note, the children items are not deleted. Only the parent-child relationships are removed.
+   * @param {Item} parent
+   * @return {Promise<boolean>} whether the removal is successful
    */
   public abstract removeChildren(parent: Item): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Returns a value indicating whether the child already exists for the parent.
+   * @param {Item} parent
+   * @param {Item} child
+   * @return {Promise<boolean>}  whether `child` is already a child of `parent`
    */
   public abstract hasChild(parent: Item, child: Item): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Returns the child permissions and/or roles.
+   * @param {string} name the parent name
+   * @return {Promise<Map<string, Item>>} the child permissions and/or roles
    */
   public abstract getChildren(name: string): Promise<Map<string, Item>>;
 
   /**
-   * @inheritdoc
+   * Assigns a role to a user.
+   * @param {Role | Permission} role
+   * @param {string} username the username
+   * @return {Promise<Assignment>} the role assignment information.
+   * @throws {Error} if the role has already been assigned to the user
    */
   public abstract assign(role: Role | Permission, username: string): Promise<Assignment>;
 
   /**
-   * @inheritdoc
+   * Revokes a role from a user.
+   * @param {Role | Permission} role
+   * @param {string} username the username
+   * @return {Promise<boolean>} whether the revoking is successful
    */
   public abstract revoke(role: Role | Permission, username: string): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Revokes all roles from a user.
+   * @param {string} username the username
+   * @return {Promise<boolean>} whether the revoking is successful
    */
   public abstract revokeAll(username: string): Promise<boolean>;
 
   /**
-   * @inheritdoc
+   * Returns the assignment information regarding a role and a user.
+   * @param {string} roleName the role name
+   * @param {string} username the username
+   * @return {Promise<Assignment | null>} the assignment information. Null is returned if the role is not assigned to the user.
    */
   public abstract getAssignment(roleName: string, username: string): Promise<Assignment | null>;
 
   /**
-   * @inheritdoc
+   * Returns all role assignment information for the specified user.
+   * @param {string} username the username
+   * @return {Promise<Map<string, Assignment>>} the assignments indexed by role names. An empty array will be returned if there is no role assigned to the user.
    */
   public abstract getAssignments(username: string): Promise<Map<string, Assignment>>;
 
   /**
-   * @inheritdoc
+   * Returns all usernames assigned to the role specified.
+   * @param {string} roleName
+   * @return {Promise<string[]>} usernames
    */
   public abstract getUsernamesByRole(roleName: string): Promise<string[]>;
 
   /**
-   * @inheritdoc
+   * Removes all authorization data, including roles, permissions, rules, and assignments.
    */
   public abstract removeAll(): Promise<void>;
 
   /**
-   * @inheritdoc
+   * Removes all permissions.
+   * All parent child relations will be adjusted accordingly.
    */
   public abstract removeAllPermissions(): Promise<void>;
 
   /**
-   * @inheritdoc
+   * Removes all roles.
+   * All parent child relations will be adjusted accordingly.
    */
   public abstract removeAllRoles(): Promise<void>;
 
   /**
-   * @inheritdoc
+   * Removes all rules.
+   * All roles and permissions which have rules will be adjusted accordingly.
    */
   public abstract removeAllRules(): Promise<void>;
 
   /**
-   * @inheritdoc
+   * Removes all role assignments.
    */
   public abstract removeAllAssignments(): Promise<void>;
 
@@ -414,75 +463,5 @@ export default abstract class BaseManager implements ManagerInterface {
     });
 
     return roleInstances;
-  }
-
-  /**
-   * Performs access check for the specified user.
-   * This method is internally called by checkAccess().
-   * @param {integer} userId the user ID. This should can be either an integer or a string representing
-   * the unique identifier of a user.
-   * @param {string} itemName the name of the operation that need access check
-   * @param {RuleParams} params name-value pairs that would be passed to rules associated
-   * with the tasks and roles assigned to the user. A param with name 'user' is added to this array,
-   * which holds the value of userId.
-   * @param {{ [key: string]: Assignment }} assignments the assignments to the specified user
-   * @return {boolean} whether the operations can be performed by the user.
-   */
-  protected checkAccessRecursive(
-    username: string,
-    itemName: string,
-    params: RuleParams,
-    assignments: Map<string, Assignment>
-  ): boolean {
-    const item = this.items?.get(itemName);
-
-    if (!item) {
-      return false;
-    }
-
-    if (!this.executeRule(username, item, params)) {
-      return false;
-    }
-
-    if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
-      return true;
-    }
-
-    const parents = this.parents.get(itemName);
-    if (parents && parents.size > 0) {
-      for (let parentName of parents.keys()) {
-        if (this.checkAccessRecursive(username, parentName, params, assignments)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Executes the rule associated with the specified auth item.
-   *
-   * If the item does not specify a rule, this method will return true. Otherwise, it will
-   * return the value of Rule::execute().
-   *
-   * @param {integer} userId the user ID. This should be either an integer or a string representing
-   * the unique identifier of a user.
-   * @param {Item} item the auth item that needs to execute its rule
-   * @param {RuleParams} params parameters passed to checkAccess() and will be passed to the rule
-   * @return {boolean} the return value of Rule::execute(). If the auth item does not specify a rule, true will be returned.
-   * @throws {Error} if the auth item has an invalid rule.
-   */
-  protected executeRule(username: string, item: Item, params: RuleParams): boolean {
-    if (!item.ruleName) {
-      return true;
-    }
-
-    const rule = this.rules?.get(item.ruleName);
-
-    if (!rule) {
-      throw new Error(`Rule "${item.ruleName}" does not exists. Or rules does not loaded.`);
-    }
-
-    return rule.execute(username, item, params);
   }
 }

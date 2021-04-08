@@ -290,7 +290,7 @@ export default (auth: BaseManager) => {
         Object.keys(tests).forEach((permissionName) => {
           prevValue.push(
             (async () => {
-              const result = await auth.checkAccess(username, permissionName, params);
+              const result = await auth.checkAccessAsync(username, permissionName, params);
               expect(result).toBe(tests[permissionName]);
             })()
           );
@@ -486,7 +486,7 @@ export default (auth: BaseManager) => {
     let item = createRBACItem(itemType, "Admin");
     await auth.add(item);
     await auth.assign(item, username);
-    expect(await auth.checkAccess(username, "Admin", {})).toBe(true);
+    expect(await auth.checkAccessAsync(username, "Admin", {})).toBe(true);
 
     // with normal register rule
     await auth.removeAll();
@@ -496,8 +496,8 @@ export default (auth: BaseManager) => {
     item.ruleName = rule.name;
     await auth.add(item);
     await auth.assign(item, username);
-    expect(await auth.checkAccess(username, "Reader", { action: "read" })).toBe(true);
-    expect(await auth.checkAccess(username, "Reader", { action: "write" })).toBe(false);
+    expect(await auth.checkAccessAsync(username, "Reader", { action: "read" })).toBe(true);
+    expect(await auth.checkAccessAsync(username, "Reader", { action: "write" })).toBe(false);
 
     // update role and rule
     const allRule = new ActionRule();
@@ -508,7 +508,7 @@ export default (auth: BaseManager) => {
     item.name = "AdminPost";
     item.ruleName = "all_rule";
     await auth.update("Reader", item);
-    expect(await auth.checkAccess(username, "AdminPost", { action: "print" })).toBe(true);
+    expect(await auth.checkAccessAsync(username, "AdminPost", { action: "print" })).toBe(true);
 
     //     // using rule class name
     //     $auth.removeAll();
@@ -561,7 +561,7 @@ export default (auth: BaseManager) => {
     await auth.add(item);
     await auth.assign(item, username);
     expect(await auth.revoke(item, username)).toBe(true);
-    expect(await auth.checkAccess(username, "Admin", {})).toBe(false);
+    expect(await auth.checkAccessAsync(username, "Admin", {})).toBe(false);
 
     await auth.removeAll();
     const rule = new ActionRule();
@@ -571,8 +571,8 @@ export default (auth: BaseManager) => {
     await auth.add(item);
     await auth.assign(item, username);
     expect(await auth.revoke(item, username)).toBe(true);
-    expect(await auth.checkAccess(username, "Reader", { action: "read" })).toBe(false);
-    expect(await auth.checkAccess(username, "Reader", { action: "write" })).toBe(false);
+    expect(await auth.checkAccessAsync(username, "Reader", { action: "read" })).toBe(false);
+    expect(await auth.checkAccessAsync(username, "Reader", { action: "write" })).toBe(false);
   }
 
   /**

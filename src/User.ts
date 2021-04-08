@@ -50,7 +50,7 @@ export default class User {
       return this.access[permissionName];
     }
 
-    const access = await this.authManager.checkAccess(this.username || "", permissionName, params);
+    const access = await this.authManager.checkAccessAsync(this.username || "", permissionName, params);
 
     if (allowCaching && params.length === 0) {
       this.access[permissionName] = access;
