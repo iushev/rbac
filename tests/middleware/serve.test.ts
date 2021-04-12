@@ -3,14 +3,14 @@ import express from "express";
 import supertest from "supertest";
 import path from "path";
 
-import rbac, { BaseManager, User, getRbac } from "../../src";
+import rbac, { BaseManager, RbacUser, getRbac } from "../../src";
 import MockManager from "./MockManager";
 
 describe("RBAC Server", () => {
   let authManager: BaseManager;
   let app: express.Application;
   let httpServer: http.Server;
-  let getUser: (() => User) | null = null;
+  let getUser: (() => RbacUser) | null = null;
 
   beforeAll(async () => {
     // init http server;
@@ -54,7 +54,7 @@ describe("RBAC Server", () => {
 
   test("Get RBAC Items", async () => {
     getUser = () => {
-      const user = new User(authManager);
+      const user = new RbacUser(authManager);
       user.identity = {
         username: "reader",
         isActive: true,

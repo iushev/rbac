@@ -1,12 +1,12 @@
 import HttpStatus from "http-status-codes";
 import path from "path";
 
-import { BaseManager, User, Identity, checkAccess } from "../../src";
+import { BaseManager, RbacUser, Identity, checkAccess } from "../../src";
 import MockManager from "./MockManager";
 
 describe("Testing check access middleware", () => {
   let authManager: BaseManager;
-  let user: User;
+  let user: RbacUser;
 
   const userReader: Identity = {
     username: "reader",
@@ -33,7 +33,7 @@ describe("Testing check access middleware", () => {
       ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),
       logging: false,
     });
-    user = new User(authManager);
+    user = new RbacUser(authManager);
   });
 
   afterAll(async () => {

@@ -16,7 +16,7 @@ export { getRbac, RBACResponse } from "./middleware/getRbac";
 
 export { default as testAuthManager } from "./testAuthManager";
 
-export { RbacUser as User, Identity, BaseManager, BaseManagerOptions };
+export { RbacUser, Identity, BaseManager, BaseManagerOptions };
 
 declare global {
   namespace Express {
