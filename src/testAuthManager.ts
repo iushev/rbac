@@ -101,9 +101,6 @@ export async function prepareData(auth: BaseManager) {
 }
 
 export default (auth: BaseManager) => {
-  // auth.ruleClasses.set("AuthorRule", AuthorRule);
-  // auth.ruleClasses.set("ActionRule", ActionRule);
-
   afterEach(async () => {
     await auth.removeAll();
   });
