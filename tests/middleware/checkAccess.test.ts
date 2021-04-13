@@ -70,14 +70,14 @@ describe("Testing check access middleware", () => {
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: { author: userAuthor.username },
+      params: { author: userAuthor.username },
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: () => ({ author: userAuthor.username }),
+      params: () => ({ author: userAuthor.username }),
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
@@ -104,14 +104,14 @@ describe("Testing check access middleware", () => {
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: { author: userAuthor.username },
+      params: { author: userAuthor.username },
     })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: () => ({ author: userAuthor.username }),
+      params: () => ({ author: userAuthor.username }),
     })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
@@ -119,7 +119,7 @@ describe("Testing check access middleware", () => {
     await checkAccess({
       roles: ["updatePost"],
       allow: false,
-      roleParams: { author: userAdmin.username },
+      params: { author: userAdmin.username },
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
@@ -127,7 +127,7 @@ describe("Testing check access middleware", () => {
     await checkAccess({
       roles: ["updatePost"],
       allow: false,
-      roleParams: () => ({ author: userAdmin.username }),
+      params: () => ({ author: userAdmin.username }),
     })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
@@ -144,7 +144,7 @@ describe("Testing check access middleware", () => {
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({ allow: false, roles: ["createPost"], roleParams: [] })(req, res, callback);
+    await checkAccess({ allow: false, roles: ["createPost"], params: [] })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
@@ -154,14 +154,14 @@ describe("Testing check access middleware", () => {
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: { author: userAuthor.username },
+      params: { author: userAuthor.username },
     })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
     await checkAccess({
       roles: ["updatePost"],
-      roleParams: () => ({ author: userAuthor.username }),
+      params: () => ({ author: userAuthor.username }),
     })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
