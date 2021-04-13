@@ -1,4 +1,4 @@
-import BaseManager from "./BaseManager";
+import CheckAccess from "./CheckAccess";
 import { Item } from "./Item";
 
 export type RuleParams = {
@@ -16,8 +16,8 @@ export class Rule<RuleData extends {} = any> {
     this.data = data ?? ({} as RuleData);
   }
 
-  public static init(auth: BaseManager) {
-    auth.ruleClasses.set(this.name, this);
+  public static init(checkAccess: CheckAccess) {
+    checkAccess.ruleClasses.set(this.name, this);
     return this;
   }
 
