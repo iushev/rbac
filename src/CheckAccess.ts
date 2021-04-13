@@ -80,7 +80,7 @@ export class CheckAccess {
       return false;
     }
 
-    if (!this.executeRule(username, item, params)) {
+    if (!await this.executeRule(username, item, params)) {
       return false;
     }
 
