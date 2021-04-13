@@ -1,22 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import requestIp from "request-ip";
 import HttpStatus from "http-status-codes";
+import { RuleParams } from "src/Rule";
 
-export type RoleParams = { [key: string]: any };
-
-export type RoleParamsFunction = (req: Request) => RoleParams;
+export type RuleParamsFunction = (req: Request) => RuleParams;
 export type MatchFunction = (req: Request) => boolean;
 
 export type CheckAccessOptions = {
   roles: string[];
   allow?: boolean;
-  roleParams?: RoleParams | RoleParamsFunction;
+  params?: RuleParams | RuleParamsFunction;
   ips?: string[];
   match?: MatchFunction;
 };
 
 const checkAccess = (options: CheckAccessOptions) => {
-  const { roles, allow = true, roleParams = {}, ips, match } = options;
+  const { roles, allow = true, params = {}, ips, match } = options;
 
   const matchRole = async (req: Request) => {
     const user = req.user!;
@@ -25,11 +24,11 @@ const checkAccess = (options: CheckAccessOptions) => {
       return true;
     }
 
-    let _roleParams;
-    if (typeof roleParams === "function") {
-      _roleParams = roleParams(req);
+    let _params;
+    if (typeof params === "function") {
+      _params = params(req);
     } else {
-      _roleParams = roleParams;
+      _params = params;
     }
 
     for (const role of roles) {
@@ -42,7 +41,7 @@ const checkAccess = (options: CheckAccessOptions) => {
           return true;
         }
       } else {
-        if (await user.can(role, _roleParams)) {
+        if (await user.can(role, _params)) {
           return true;
         }
       }

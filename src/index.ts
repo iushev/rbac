@@ -9,8 +9,7 @@ export { CheckAccess } from "./CheckAccess";
 export {
   default as checkAccess,
   CheckAccessOptions,
-  RoleParams,
-  RoleParamsFunction,
+  RuleParamsFunction,
   MatchFunction,
 } from "./middleware/checkAccess";
 export { getRbac, RBACResponse } from "./middleware/getRbac";
