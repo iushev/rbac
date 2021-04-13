@@ -25,8 +25,8 @@ export default abstract class BaseManager extends CheckAccess {
    */
   constructor(options?: BaseManagerOptions) {
     super({
-      defaultRoles: options?.defaultRoles
-    })
+      defaultRoles: options?.defaultRoles,
+    });
 
     this.logging = Object.prototype.hasOwnProperty.call(options, "logging") ? options!.logging ?? false : console.log;
   }
@@ -61,11 +61,13 @@ export default abstract class BaseManager extends CheckAccess {
   /**
    * @inheritdoc
    */
-  public async checkAccessAsync(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
+  public async checkAccess(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
     this.log(`Checking access: username=${username}, permissionName=${permissionName}`);
+
     if (this.items.size === 0) {
       await this.load();
     }
+
     const assignments = await this.getAssignments(username);
     return super.checkAccess(username, permissionName, params, assignments);
   }
@@ -83,7 +85,7 @@ export default abstract class BaseManager extends CheckAccess {
       items: _.cloneDeep(this.items),
       parents: _.cloneDeep(this.parents),
       rules: _.cloneDeep(this.rules),
-    }
+    };
   }
 
   protected invalidateRbac() {
@@ -93,7 +95,6 @@ export default abstract class BaseManager extends CheckAccess {
     this.rules.clear();
     // this.assignments.clear();
   }
-
 
   // #########################################################################################################
 
@@ -211,14 +212,14 @@ export default abstract class BaseManager extends CheckAccess {
    * @return {Promise<Map<string, Role>>} Child roles. The array is indexed by the role names. First element is an instance of the parent Role itself.
    * @throws {Error} if Role was not found that are getting by $roleName
    */
-   public abstract getChildRoles(roleName: string): Promise<Map<string, Role>>;
+  public abstract getChildRoles(roleName: string): Promise<Map<string, Role>>;
 
   /**
    * Returns the named permission.
    * @param {string} name the permission name.
    * @return {Promise<Permission | null>} the permission corresponding to the specified name. Null is returned if no such permission.
    */
-   public async getPermission(name: string): Promise<Permission | null> {
+  public async getPermission(name: string): Promise<Permission | null> {
     const item = await this.getItem(name);
     return item instanceof Item && item.type == ItemType.permission ? item : null;
   }

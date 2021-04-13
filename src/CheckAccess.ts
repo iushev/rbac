@@ -68,12 +68,12 @@ export class CheckAccess {
    * @param {Map<string, Assignment>} assignments the assignments to the specified user
    * @return {boolean} whether the operations can be performed by the user.
    */
-  public checkAccess(
+  public async checkAccess(
     username: string,
     itemName: string,
     params: RuleParams,
     assignments: Map<string, Assignment>
-  ): boolean {
+  ): Promise<boolean> {
     const item = this.items?.get(itemName);
 
     if (!item) {
@@ -91,7 +91,7 @@ export class CheckAccess {
     const parents = this.parents.get(itemName);
     if (parents && parents.size > 0) {
       for (let parentName of parents.keys()) {
-        if (this.checkAccess(username, parentName, params, assignments)) {
+        if (await this.checkAccess(username, parentName, params, assignments)) {
           return true;
         }
       }
@@ -112,7 +112,7 @@ export class CheckAccess {
    * @return {boolean} the return value of Rule::execute(). If the auth item does not specify a rule, true will be returned.
    * @throws {Error} if the auth item has an invalid rule.
    */
-  protected executeRule(username: string, item: Item, params: RuleParams): boolean {
+  protected async executeRule(username: string, item: Item, params: RuleParams): Promise<boolean> {
     if (!item.ruleName) {
       return true;
     }

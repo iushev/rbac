@@ -5,7 +5,7 @@ export type RuleParams = {
   [key: string]: any;
 };
 
-export type RuleExecuteFunction = (username: string, item: Item, params: RuleParams) => boolean;
+export type RuleExecuteFunction = (username: string, item: Item, params: RuleParams) => Promise<boolean>;
 
 export class Rule<RuleData extends {} = any> {
   public name!: string;
@@ -21,7 +21,7 @@ export class Rule<RuleData extends {} = any> {
     return this;
   }
 
-  execute: RuleExecuteFunction = (_username: string, _item: Item, _params: RuleParams) => true;
+  execute: RuleExecuteFunction = async (_username: string, _item: Item, _params: RuleParams) => true;
 }
 
 export type RuleType = typeof Rule;
