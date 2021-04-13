@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import requestIp from "request-ip";
 import HttpStatus from "http-status-codes";
-import { RuleParams } from "src/Rule";
+
+import { RuleParams } from "../Rule";
 
 export type RuleParamsFunction = (req: Request) => RuleParams;
 export type MatchFunction = (req: Request) => boolean;
