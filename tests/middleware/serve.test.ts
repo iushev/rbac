@@ -3,7 +3,7 @@ import express from "express";
 import supertest from "supertest";
 import path from "path";
 
-import rbac, { BaseManager, RbacUser, getRbac } from "../../src";
+import rbac, { BaseManager, RbacUser, getRbac, RBACResponse } from "../../src";
 import MockManager from "./MockManager";
 
 describe("RBAC Server", () => {

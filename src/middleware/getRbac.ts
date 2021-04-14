@@ -21,17 +21,21 @@ export type ResponseRule = {
   };
 };
 
+export type Assignments = {
+  [username: string]: string[];
+}
+
 export type RBACResponse = {
   items: {
-    [key: string]: ResponseItem;
+    [itemName: string]: ResponseItem;
   };
   rules: {
     [ruleName: string]: ResponseRule;
   };
-  assignments: string[];
+  assignments: Assignments;
 };
 
-export async function getRbac(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getRbac(req: Request, res: Response<RBACResponse>, next: NextFunction): Promise<void> {
   if (!req.user || !req.user.username) {
     res.sendStatus(HttpStatus.UNAUTHORIZED);
     return;
@@ -85,10 +89,13 @@ export async function getRbac(req: Request, res: Response, next: NextFunction): 
     };
 
     const assignmentsToObject = (userAssignments: Map<string, Assignment>) => {
-      const assignments: string[] = [];
+      const assignments: Assignments = {};
 
       for (let assignment of userAssignments.values()) {
-        assignments.push(assignment.itemName);
+        if (!assignments[assignment.username]) {
+          assignments[assignment.username] = [];
+        }
+        assignments[assignment.username].push(assignment.itemName);
       }
 
       return assignments;
@@ -98,7 +105,7 @@ export async function getRbac(req: Request, res: Response, next: NextFunction): 
     const assignments = await req.authManager.getAssignments(req.user.username);
 
     res.status(HttpStatus.OK).json({
-      items: await itemsToObject(items, parents),
+      items: itemsToObject(items, parents),
       rules: rulesToObject(rules),
       assignments: assignmentsToObject(assignments),
     });
