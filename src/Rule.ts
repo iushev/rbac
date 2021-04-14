@@ -1,4 +1,4 @@
-import CheckAccess from "./CheckAccess";
+import BaseCheckAccess from "./BaseCheckAccess";
 import { Item } from "./Item";
 
 export type RuleParams = {
@@ -16,7 +16,7 @@ export class Rule<RuleData extends {} = any> {
     this.data = data ?? ({} as RuleData);
   }
 
-  public static init(checkAccess: CheckAccess) {
+  public static init(checkAccess: BaseCheckAccess) {
     checkAccess.ruleClasses.set(this.name, this);
     return this;
   }

@@ -5,7 +5,7 @@ import BaseManager, { BaseManagerOptions } from "./BaseManager";
 export { Assignment } from "./Assignment";
 export { ItemType, Item, Role, Permission } from "./Item";
 export { RuleParams, Rule, RuleExecuteFunction, RuleCtor } from "./Rule";
-export { CheckAccess } from "./CheckAccess";
+export { BaseCheckAccess, BaseCheckAccessOptions } from "./BaseCheckAccess";
 export {
   default as checkAccess,
   CheckAccessOptions,

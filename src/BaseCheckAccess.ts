@@ -2,11 +2,11 @@ import { Assignment } from "./Assignment";
 import { Item } from "./Item";
 import { RuleCtor, Rule, RuleParams } from "./Rule";
 
-export type CheckAccessOptions = {
+export type BaseCheckAccessOptions = {
   defaultRoles?: string[];
 };
 
-export class CheckAccess {
+export class BaseCheckAccess {
   /**
    * @inheritdoc
    */
@@ -41,7 +41,7 @@ export class CheckAccess {
    *
    * @param options
    */
-  constructor(options: CheckAccessOptions) {
+  constructor(options: BaseCheckAccessOptions) {
     this.defaultRoles = options?.defaultRoles ?? [];
   }
 
@@ -127,4 +127,4 @@ export class CheckAccess {
   }
 }
 
-export default CheckAccess;
+export default BaseCheckAccess;

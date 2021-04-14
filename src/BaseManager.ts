@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Assignment } from "./Assignment";
-import CheckAccess from "./CheckAccess";
+import BaseCheckAccess from "./BaseCheckAccess";
 
 import { Item, ItemType, Permission, Role } from "./Item";
 import { Rule, RuleParams } from "./Rule";
@@ -13,7 +13,7 @@ export interface BaseManagerOptions {
 /**
  * Manager is a base class implementing for RBAC management.
  */
-export default abstract class BaseManager extends CheckAccess {
+export default abstract class BaseManager extends BaseCheckAccess {
   /**
    *
    */
