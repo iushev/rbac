@@ -7,7 +7,7 @@ import { Rule, RuleParams } from "./Rule";
 
 export interface BaseManagerOptions {
   defaultRoles?: string[];
-  logging?: false | ((sql: string, timing?: number) => void);
+  logging?: false | ((...args: any[]) => void);
 }
 
 /**
@@ -17,7 +17,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    *
    */
-  protected logging: false | ((sql: string, timing?: number) => void);
+  protected logging: false | ((...args: any[]) => void);
 
   /**
    *
