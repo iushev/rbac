@@ -1,17 +1,17 @@
 import BaseCheckAccess from "./BaseCheckAccess";
-import { Item } from "./Item";
+import { IItem } from "./Item";
 
 export type RuleParams = {
   [key: string]: any;
 };
 
-export type RuleExecuteFunction = (username: string, item: Item, params: RuleParams) => Promise<boolean>;
+export type RuleExecuteFunction = (username: string, item: IItem, params: RuleParams) => Promise<boolean>;
 
-export class Rule<RuleData extends {} = any> {
-  public name!: string;
-  public data!: RuleData;
+export class Rule<RuleData extends Record<string, any> = Record<string, never>> {
+  public name: string;
+  public data: RuleData;
 
-  constructor(name: string = "", data?: RuleData) {
+  constructor(name = "", data?: RuleData) {
     this.name = name;
     this.data = data ?? ({} as RuleData);
   }
@@ -21,7 +21,8 @@ export class Rule<RuleData extends {} = any> {
     return this;
   }
 
-  execute: RuleExecuteFunction = async (_username: string, _item: Item, _params: RuleParams) => true;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  execute: RuleExecuteFunction = async (_username: string, _item: IItem, _params: RuleParams) => true;
 }
 
 export type RuleType = typeof Rule;

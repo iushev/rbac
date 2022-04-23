@@ -1,8 +1,7 @@
 import HttpStatus from "http-status-codes";
 import path from "path";
 
-import { BaseManager, RbacUser, Identity, checkAccess } from "../../src";
-import MockManager from "./MockManager";
+import { BaseManager, JsonManager, RbacUser, Identity, checkAccess } from "../..";
 
 describe("Testing check access middleware", () => {
   let authManager: BaseManager;
@@ -27,7 +26,7 @@ describe("Testing check access middleware", () => {
   };
 
   beforeAll(() => {
-    authManager = new MockManager({
+    authManager = new JsonManager({
       itemFile: path.join(__dirname, "../assets/rbac_items.json"),
       assignmentFile: path.join(__dirname, "../assets/rbac_assignments.json"),
       ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),
@@ -49,7 +48,6 @@ describe("Testing check access middleware", () => {
   const mockResponse = (): any => {
     const res: any = {};
     res.status = jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
     return res;
   };
 
@@ -112,6 +110,13 @@ describe("Testing check access middleware", () => {
     await checkAccess({
       roles: ["updatePost"],
       params: () => ({ author: userAuthor.username }),
+    })(req, res, callback);
+    expect(callback).toHaveBeenCalled();
+    callback.mockClear();
+
+    await checkAccess({
+      roles: ["updatePost"],
+      params: { author: "fake-user" },
     })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();

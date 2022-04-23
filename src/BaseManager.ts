@@ -2,8 +2,10 @@ import _ from "lodash";
 import { Assignment } from "./Assignment";
 import BaseCheckAccess from "./BaseCheckAccess";
 
-import { Item, ItemType, Permission, Role } from "./Item";
+import { IItem, ItemType, Permission, Role } from "./Item";
 import { Rule, RuleParams } from "./Rule";
+
+export type RbacItem = Role | Permission | Rule;
 
 export interface BaseManagerOptions {
   defaultRoles?: string[];
@@ -28,7 +30,8 @@ export default abstract class BaseManager extends BaseCheckAccess {
       defaultRoles: options?.defaultRoles,
     });
 
-    this.logging = Object.prototype.hasOwnProperty.call(options, "logging") ? options!.logging ?? false : console.log;
+    this.logging =
+      options?.logging && Object.prototype.hasOwnProperty.call(options, "logging") ? options.logging : console.log;
   }
 
   /**
@@ -41,7 +44,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
     const last = _.last(args);
 
     if (last && _.isPlainObject(last) && Object.prototype.hasOwnProperty.call(last, "logging")) {
-      let options = last;
+      const options = last;
 
       // remove options from set of logged arguments if options.logging is equal to console.log
       // eslint-disable-next-line no-console
@@ -89,46 +92,20 @@ export default abstract class BaseManager extends BaseCheckAccess {
   }
 
   protected invalidateRbac() {
-    // this.children.clear();
     this.parents.clear();
     this.items.clear();
     this.rules.clear();
-    // this.assignments.clear();
   }
 
   // #########################################################################################################
 
   /**
-   * Creates a new Role object.
-   * Note that the newly created role is not added to the RBAC system yet.
-   * You must fill in the needed data and call [[add()]] to add it to the system.
-   * @param {string} name the role name
-   * @return {Role} the new Role object
-   */
-  public createRole(name: string): Role {
-    const role = new Role({ name });
-    return role;
-  }
-
-  /**
-   * Creates a new Permission object.
-   * Note that the newly created permission is not added to the RBAC system yet.
-   * You must fill in the needed data and call [[add()]] to add it to the system.
-   * @param {string} name the permission name
-   * @return {Permission} the new Permission object
-   */
-  public createPermission(name: string): Permission {
-    const permission = new Permission({ name });
-    return permission;
-  }
-
-  /**
    * Adds a role, permission or rule to the RBAC system.
-   * @param {Role | Permission | Rule} object
+   * @param {RbacItem} object
    * @return {Promise<boolean>} whether the role, permission or rule is successfully added to the system
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  public async add(object: Role | Permission | Rule): Promise<boolean> {
+  public async add(object: RbacItem): Promise<boolean> {
     if (object instanceof Role || object instanceof Permission) {
       if (object.ruleName && (await this.getRule(object.ruleName)) === null) {
         const rule = new Rule(object.ruleName);
@@ -145,12 +122,12 @@ export default abstract class BaseManager extends BaseCheckAccess {
 
   /**
    * Removes a role, permission or rule from the RBAC system.
-   * @param {Role | Permission | Rule} object
+   * @param {RbacItem} object
    * @return {Promise<boolean>} whether the role, permission or rule is successfully removed
    * @throws {Error}
    */
-  public async remove(object: Role | Permission | Rule): Promise<boolean> {
-    if (object instanceof Item) {
+  public async remove(object: RbacItem): Promise<boolean> {
+    if (object instanceof Role || object instanceof Permission) {
       return this.removeItem(object);
     } else if (object instanceof Rule) {
       return this.removeRule(object);
@@ -161,12 +138,12 @@ export default abstract class BaseManager extends BaseCheckAccess {
 
   /**
    * Updates the specified role, permission or rule in the system.
-   * @param {Role | Permission | Rule} object
+   * @param {RbacItem} object
    * @return {Promise<boolean>} whether the update is successful
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  public async update(name: string, object: Role | Permission | Rule): Promise<boolean> {
-    if (object instanceof Item) {
+  public async update(name: string, object: RbacItem): Promise<boolean> {
+    if (object instanceof Role || object instanceof Permission) {
       if (object.ruleName && (await this.getRule(object.ruleName)) === null) {
         const rule = new Rule(object.ruleName);
         this.addRule(rule);
@@ -187,7 +164,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    */
   public async getRole(name: string): Promise<Role | null> {
     const item = await this.getItem(name);
-    return item instanceof Item && item.type == ItemType.role ? item : null;
+    return item?.type == ItemType.role ? item : null;
   }
 
   /**
@@ -221,7 +198,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    */
   public async getPermission(name: string): Promise<Permission | null> {
     const item = await this.getItem(name);
-    return item instanceof Item && item.type == ItemType.permission ? item : null;
+    return item?.type == ItemType.permission ? item : null;
   }
 
   /**
@@ -265,7 +242,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param {Item} child the child item to be added to the hierarchy
    * @return {Promise<boolean>} possibility of adding
    */
-  public abstract canAddChild(parent: Item, child: Item): Promise<boolean>;
+  public abstract canAddChild(parent: IItem, child: IItem): Promise<boolean>;
 
   /**
    * Adds an item as a child of another item.
@@ -274,7 +251,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the child successfully added
    * @throws {Error} if the parent-child relationship already exists or if a loop has been detected.
    */
-  public abstract addChild(parent: Item, child: Item): Promise<boolean>;
+  public abstract addChild(parent: IItem, child: IItem): Promise<boolean>;
 
   /**
    * Removes a child from its parent.
@@ -283,7 +260,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param {Item} child
    * @return {Promise<boolean>} whether the removal is successful
    */
-  public abstract removeChild(parent: Item, child: Item): Promise<boolean>;
+  public abstract removeChild(parent: IItem, child: IItem): Promise<boolean>;
 
   /**
    * Remove all children from their parent.
@@ -291,7 +268,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param {Item} parent
    * @return {Promise<boolean>} whether the removal is successful
    */
-  public abstract removeChildren(parent: Item): Promise<boolean>;
+  public abstract removeChildren(parent: IItem): Promise<boolean>;
 
   /**
    * Returns a value indicating whether the child already exists for the parent.
@@ -299,14 +276,14 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param {Item} child
    * @return {Promise<boolean>}  whether `child` is already a child of `parent`
    */
-  public abstract hasChild(parent: Item, child: Item): Promise<boolean>;
+  public abstract hasChild(parent: IItem, child: IItem): Promise<boolean>;
 
   /**
    * Returns the child permissions and/or roles.
    * @param {string} name the parent name
    * @return {Promise<Map<string, Item>>} the child permissions and/or roles
    */
-  public abstract getChildren(name: string): Promise<Map<string, Item>>;
+  public abstract getChildren(name: string): Promise<Map<string, IItem>>;
 
   /**
    * Assigns a role to a user.
@@ -387,14 +364,14 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param {string} name the auth item name.
    * @return {Promise<Item | null>} the auth item corresponding to the specified name. Null is returned if no such item.
    */
-  protected abstract getItem(name: string): Promise<Item | null>;
+  protected abstract getItem(name: string): Promise<IItem | null>;
 
   /**
    * Returns the items of the specified type.
    * @param {ItemType} type the auth item type
    * @return {Promise<Map<string, Item>>} the auth items of the specified type.
    */
-  protected abstract getItems(type: ItemType): Promise<Map<string, Item>>;
+  protected abstract getItems(type: ItemType): Promise<Map<string, IItem>>;
 
   /**
    * Adds an auth item to the RBAC system.
@@ -402,7 +379,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the auth item is successfully added to the system
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract addItem(item: Item): Promise<boolean>;
+  protected abstract addItem(item: IItem): Promise<boolean>;
 
   /**
    * Adds a rule to the RBAC system.
@@ -418,7 +395,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the role or permission is successfully removed
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract removeItem(item: Item): Promise<boolean>;
+  protected abstract removeItem(item: IItem): Promise<boolean>;
 
   /**
    * Removes a rule from the RBAC system.
@@ -435,7 +412,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the auth item is successfully updated
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract updateItem(name: string, item: Item): Promise<boolean>;
+  protected abstract updateItem(name: string, item: IItem): Promise<boolean>;
 
   /**
    * Updates a rule to the RBAC system.

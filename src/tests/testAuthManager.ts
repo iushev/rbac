@@ -1,50 +1,13 @@
-import { BaseManager, Item, ItemType, Permission, Role, Rule, RuleParams } from ".";
-
-export interface AuthorRuleData {
-  reallyReally: boolean;
-}
-
-export class AuthorRule extends Rule<AuthorRuleData> {
-  constructor(name: string = "isAuthor", data?: AuthorRuleData) {
-    super(name, {
-      reallyReally: false,
-      ...(data ?? {}),
-    });
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public execute = async (username: string, _item: Item, params: RuleParams) => {
-    return params["authorId"] === username;
-  };
-}
-
-export interface ActionRuleData {
-  action: string;
-}
-export class ActionRule extends Rule<ActionRuleData> {
-  constructor(name: string = "action_rule", data?: ActionRuleData) {
-    super(name, {
-      action: "read",
-      ...(data ?? {}),
-    });
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public execute = async (_username: string, _item: Item, params: RuleParams) => {
-    return this.data.action === "all" || this.data.action === params["action"];
-  };
-}
+import { BaseManager, Item, ItemType, Permission, Role, Rule, RuleParams } from "..";
+import { AuthorRule } from "./AuthorRule";
+import { ActionRule } from "./ActionRule";
 
 export async function prepareData(auth: BaseManager) {
   AuthorRule.init(auth);
   ActionRule.init(auth);
 
-  const rule = new AuthorRule();
-  await auth.add(rule);
+  const authorRule = new AuthorRule();
+  await auth.add(authorRule);
 
   const uniqueTrait = auth.createPermission("Fast Metabolism");
   uniqueTrait.description =
@@ -65,13 +28,14 @@ export async function prepareData(auth: BaseManager) {
   await auth.add(deletePost);
 
   const updatePost = auth.createPermission("updatePost");
-  updatePost.description = "update a post";
-  updatePost.ruleName = rule.name;
+  updatePost.description = "update any post";
   await auth.add(updatePost);
 
-  const updateAnyPost = auth.createPermission("updateAnyPost");
-  updateAnyPost.description = "update any post";
-  await auth.add(updateAnyPost);
+  const updateOwnPost = auth.createPermission("updateOwnPost");
+  updateOwnPost.description = "update own post";
+  updateOwnPost.ruleName = authorRule.name;
+  await auth.add(updateOwnPost);
+  await auth.addChild(updateOwnPost, updatePost);
 
   const withoutChildren = auth.createRole("withoutChildren");
   await auth.add(withoutChildren);
@@ -81,16 +45,15 @@ export async function prepareData(auth: BaseManager) {
   await auth.addChild(reader, readPost);
 
   const author = auth.createRole("author");
-  // author->data = 'authorData';
   await auth.add(author);
   await auth.addChild(author, createPost);
-  await auth.addChild(author, updatePost);
+  await auth.addChild(author, updateOwnPost);
   await auth.addChild(author, reader);
 
   const admin = auth.createRole("admin");
   await auth.add(admin);
   await auth.addChild(admin, author);
-  await auth.addChild(admin, updateAnyPost);
+  await auth.addChild(admin, updatePost);
 
   await auth.assign(uniqueTrait, "reader A");
 
@@ -105,35 +68,22 @@ export default (auth: BaseManager) => {
     await auth.removeAll();
   });
 
-  test("Create role", () => {
-    const role = auth.createRole("admin");
-    expect(role).toBeInstanceOf(Role);
-    expect(role.type).toBe(ItemType.role);
-    expect(role.name).toBe("admin");
-  });
-
-  test("Create permission", () => {
-    const permission = auth.createPermission("edit post");
-    expect(permission).toBeInstanceOf(Permission);
-    expect(permission.type).toBe(ItemType.permission);
-    expect(permission.name).toBe("edit post");
-  });
-
   test("Add item", async () => {
-    const role = auth.createRole("admin");
-    role.description = "administrator";
+    const role = new Role({
+      name: "admin",
+      description: "administrator",
+    });
     expect(await auth.add(role)).toBeTruthy();
 
-    const permission = auth.createPermission("edit post");
-    permission.description = "edit a post";
+    const permission = new Permission({
+      name: "edit post",
+      description: "edit a post",
+    });
     expect(await auth.add(permission)).toBeTruthy();
 
     const rule = new AuthorRule();
-    rule.name = "is author";
     rule.data.reallyReally = true;
     expect(await auth.add(rule)).toBeTruthy();
-
-    // todo: check duplication of name
   });
 
   test("Get children", async () => {
@@ -246,21 +196,21 @@ export default (auth: BaseManager) => {
       "reader A": {
         createPost: false,
         readPost: true,
+        updateOwnPost: false,
         updatePost: false,
-        updateAnyPost: false,
       },
       "author B": {
         createPost: true,
         readPost: true,
-        updatePost: true,
+        updateOwnPost: true,
         deletePost: true,
-        updateAnyPost: false,
+        updatePost: false,
       },
       "admin C": {
         createPost: true,
         readPost: true,
-        updatePost: false,
-        updateAnyPost: true,
+        updateOwnPost: false,
+        updatePost: true,
         blablabla: false,
         null: false,
       },
@@ -268,9 +218,9 @@ export default (auth: BaseManager) => {
         // all actions denied for guest (user not exists)
         createPost: false,
         readPost: false,
-        updatePost: false,
+        updateOwnPost: false,
         deletePost: false,
-        updateAnyPost: false,
+        updatePost: false,
         blablabla: false,
         null: false,
       },
@@ -302,7 +252,7 @@ export default (auth: BaseManager) => {
     await prepareData(auth);
 
     const permissions = await auth.getPermissionsByRole("admin");
-    const expectedPermissions = ["createPost", "updatePost", "readPost", "updateAnyPost"];
+    const expectedPermissions = ["createPost", "updateOwnPost", "readPost", "updatePost"];
     expect(permissions.size).toBe(expectedPermissions.length);
     expectedPermissions.forEach((permissionName) => {
       expect(permissions.get(permissionName)).toBeInstanceOf(Permission);
@@ -313,7 +263,7 @@ export default (auth: BaseManager) => {
     await prepareData(auth);
 
     const permissions = await auth.getPermissionsByUser("author B");
-    const expectedPermissions = ["deletePost", "createPost", "updatePost", "readPost"];
+    const expectedPermissions = ["deletePost", "createPost", "updateOwnPost", "readPost"];
     expect(permissions.size).toBe(expectedPermissions.length);
     expectedPermissions.forEach((permissionName) => {
       expect(permissions.get(permissionName)).toBeInstanceOf(Permission);
@@ -506,40 +456,6 @@ export default (auth: BaseManager) => {
     item.ruleName = "all_rule";
     await auth.update("Reader", item);
     expect(await auth.checkAccess(username, "AdminPost", { action: "print" })).toBe(true);
-
-    //     // using rule class name
-    //     $auth.removeAll();
-    //     $item = createRBACItem($RBACItemType, 'Reader');
-    //     $item->ruleName = 'yiiunit\framework\rbac\ActionRule';
-    //     $auth.add($item);
-    //     $auth.assign($item, $userId);
-    //     assertTrue($auth.checkAccess($userId, 'Reader', ['action' => 'read']));
-    //     assertFalse($auth.checkAccess($userId, 'Reader', ['action' => 'write']));
-
-    //     // using DI
-    //     \Yii::$container->set('write_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'write']);
-    //     \Yii::$container->set('delete_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'delete']);
-    //     \Yii::$container->set('all_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'all']);
-
-    //     $item = createRBACItem($RBACItemType, 'Writer');
-    //     $item->ruleName = 'write_rule';
-    //     $auth.add($item);
-    //     $auth.assign($item, $userId);
-    //     assertTrue($auth.checkAccess($userId, 'Writer', ['action' => 'write']));
-    //     assertFalse($auth.checkAccess($userId, 'Writer', ['action' => 'update']));
-
-    //     $item = createRBACItem($RBACItemType, 'Deleter');
-    //     $item->ruleName = 'delete_rule';
-    //     $auth.add($item);
-    //     $auth.assign($item, $userId);
-    //     assertTrue($auth.checkAccess($userId, 'Deleter', ['action' => 'delete']));
-    //     assertFalse($auth.checkAccess($userId, 'Deleter', ['action' => 'update']));
-
-    //     $item = createRBACItem($RBACItemType, 'Author');
-    //     $item->ruleName = 'all_rule';
-    //     $auth.add($item);
-    //     $auth.assign($item, $userId);
-    //     assertTrue($auth.checkAccess($userId, 'Author', ['action' => 'update']));
   }
 
   test("Revoke rule from role", async () => {

@@ -4,7 +4,7 @@ import supertest from "supertest";
 import path from "path";
 
 import rbac, { BaseManager, RbacUser, getRbac } from "../../src";
-import MockManager from "./MockManager";
+import MockManager from "../MockManager";
 
 describe("RBAC Server", () => {
   let authManager: BaseManager;

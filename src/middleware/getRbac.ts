@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
 
-import { Item, ItemType } from "../Item";
+import { IItem, ItemType } from "../Item";
 import { Rule } from "../Rule";
 import { Assignment } from "../Assignment";
 
@@ -35,11 +35,11 @@ export type RBACResponse = {
   assignments: Assignments;
 };
 
-const itemsToObject = (mapItems: Map<string, Item>, mapParents: Map<string, Map<string, Item>>) => {
+const itemsToObject = (mapItems: Map<string, IItem>, mapParents: Map<string, Map<string, IItem>>) => {
   const items: {
     [itemName: string]: ResponseItem;
   } = {};
-  for (let [itemName, item] of mapItems) {
+  for (const [itemName, item] of mapItems) {
     items[itemName] = {
       type: item.type,
       name: item.name,
@@ -56,7 +56,7 @@ const itemsToObject = (mapItems: Map<string, Item>, mapParents: Map<string, Map<
 
     if (children) {
       items[itemName].children = [];
-      for (let childName of children.keys()) {
+      for (const childName of children.keys()) {
         items[itemName].children?.push(childName);
       }
     }
@@ -69,7 +69,7 @@ const rulesToObject = (mapRules: Map<string, Rule>) => {
     [ruleName: string]: ResponseRule;
   } = {};
 
-  for (let rule of mapRules.values()) {
+  for (const rule of mapRules.values()) {
     rules[rule.name] = {
       name: rule.name,
       data: {
@@ -84,7 +84,7 @@ const rulesToObject = (mapRules: Map<string, Rule>) => {
 const assignmentsToObject = (userAssignments: Map<string, Assignment>) => {
   const assignments: Assignments = {};
 
-  for (let assignment of userAssignments.values()) {
+  for (const assignment of userAssignments.values()) {
     if (!assignments[assignment.username]) {
       assignments[assignment.username] = [];
     }

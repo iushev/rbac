@@ -1,5 +1,5 @@
 import { Assignment } from "./Assignment";
-import { Item } from "./Item";
+import { IItem } from "./Item";
 import { RuleCtor, Rule, RuleParams } from "./Rule";
 
 export type BaseCheckAccessOptions = {
@@ -20,12 +20,12 @@ export class BaseCheckAccess {
   /**
    * @inheritdoc
    */
-  protected items: Map<string, Item> = new Map();
+  protected items: Map<string, IItem> = new Map();
 
   /**
    * @inheritdoc
    */
-  protected parents: Map<string, Map<string, Item>> = new Map();
+  protected parents: Map<string, Map<string, IItem>> = new Map();
 
   /**
    * @inheritdoc
@@ -44,18 +44,6 @@ export class BaseCheckAccess {
   constructor(options: BaseCheckAccessOptions) {
     this.defaultRoles = options?.defaultRoles ?? [];
   }
-
-  // /**
-  //  * @inheritdoc
-  //  */
-  // public async checkAccess(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
-  //   // this.log(`Checking access: username=${username}, permissionName=${permissionName}`);
-  //   if (this.items.size === 0) {
-  //     await this.load();
-  //   }
-  //   const assignments = await this.getAssignments(username);
-  //   return this.checkAccessRecursive(username, permissionName, params, assignments);
-  // }
 
   /**
    * Performs access check for the specified user.
@@ -80,7 +68,7 @@ export class BaseCheckAccess {
       return false;
     }
 
-    if (!await this.executeRule(username, item, params)) {
+    if (!(await this.executeRule(username, item, params))) {
       return false;
     }
 
@@ -90,7 +78,7 @@ export class BaseCheckAccess {
 
     const parents = this.parents.get(itemName);
     if (parents && parents.size > 0) {
-      for (let parentName of parents.keys()) {
+      for (const parentName of parents.keys()) {
         if (await this.checkAccess(username, parentName, params, assignments)) {
           return true;
         }
@@ -112,7 +100,7 @@ export class BaseCheckAccess {
    * @return {boolean} the return value of Rule::execute(). If the auth item does not specify a rule, true will be returned.
    * @throws {Error} if the auth item has an invalid rule.
    */
-  protected async executeRule(username: string, item: Item, params: RuleParams): Promise<boolean> {
+  protected async executeRule(username: string, item: IItem, params: RuleParams): Promise<boolean> {
     if (!item.ruleName) {
       return true;
     }

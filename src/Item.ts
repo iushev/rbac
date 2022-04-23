@@ -3,29 +3,23 @@ export enum ItemType {
   permission = "permission",
 }
 
-export class Item {
-  public type!: ItemType;
-  public name!: string;
-  public description!: string | null;
-  public ruleName!: string | null;
-  // public data!: any;
+export interface IItem {
+  type: ItemType;
+  name: string;
+  description: string | null;
+  ruleName: string | null;
+}
 
-  constructor(data: Partial<Item>) {
-    if (data.type) {
-      this.type = data.type;
-    }
+class Item implements IItem {
+  public declare readonly type: ItemType;
+  public readonly name: string;
+  public description: string | null;
+  public ruleName: string | null;
 
-    if (data.name) {
-      this.name = data.name;
-    }
-
-    if (data.description) {
-      this.description = data.description;
-    }
-
-    if (data.ruleName) {
-      this.ruleName = data.ruleName;
-    }
+  constructor(data: Omit<Item, "type" | "description" | "ruleName"> & Partial<Pick<Item, "description" | "ruleName">>) {
+    this.name = data.name;
+    this.description = data.description ?? null;
+    this.ruleName = data.ruleName ?? null;
   }
 }
 
