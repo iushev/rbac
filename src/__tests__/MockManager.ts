@@ -2,6 +2,7 @@ import BaseManager from "../BaseManager";
 import { Assignment } from "../Assignment";
 import { Role, Permission, IItem, ItemType } from "../Item";
 import { Rule } from "../Rule";
+
 import AuthorRule from "./AuthorRule";
 import ActionRule from "./ActionRule";
 
