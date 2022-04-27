@@ -19,32 +19,26 @@ const checkAccess = (options: CheckAccessOptions) => {
   const { roles, allow = true, params = {}, ips, match } = options;
 
   const matchRole = async (req: Request) => {
-    const user = req.user!;
+    if (!req.user) {
+      return false;
+    }
 
     if (roles.length === 0) {
       return true;
     }
 
-    let _params;
-    if (typeof params === "function") {
-      _params = params(req);
-    } else {
-      _params = params;
-    }
-
     for (const role of roles) {
-      if (role === "?") {
-        if (user.isGuest) {
-          return true;
-        }
-      } else if (role === "@") {
-        if (!user.isGuest) {
-          return true;
-        }
+      if (role === "?" && req.user.isGuest) {
+        // only guest users
+        return true;
+      } else if (role === "@" && !req.user.isGuest) {
+        // only authenticated users
+        return true;
+      } else if (await req.user.can(role, typeof params === "function" ? params(req) : params)) {
+        // only authenticated users that has permission
+        return true;
       } else {
-        if (await user.can(role, _params)) {
-          return true;
-        }
+        continue;
       }
     }
 

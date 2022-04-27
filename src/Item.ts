@@ -12,14 +12,18 @@ export interface IItem {
 
 class Item implements IItem {
   public declare readonly type: ItemType;
-  public readonly name: string;
+  public name: string;
   public description: string | null;
   public ruleName: string | null;
 
-  constructor(data: Omit<Item, "type" | "description" | "ruleName"> & Partial<Pick<Item, "description" | "ruleName">>) {
-    this.name = data.name;
-    this.description = data.description ?? null;
-    this.ruleName = data.ruleName ?? null;
+  constructor({
+    name,
+    description,
+    ruleName,
+  }: Omit<Item, "type" | "description" | "ruleName"> & Partial<Pick<Item, "description" | "ruleName">>) {
+    this.name = name;
+    this.description = description ?? null;
+    this.ruleName = ruleName ?? null;
   }
 }
 

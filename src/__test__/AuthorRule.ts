@@ -1,10 +1,11 @@
-import { IItem, Rule, RuleParams } from "../..";
+import { IItem } from "../Item";
+import { Rule, RuleParams } from "../Rule";
 
 export interface AuthorRuleData {
   reallyReally: boolean;
 }
 
-export class AuthorRule extends Rule<AuthorRuleData> {
+export default class AuthorRule extends Rule<AuthorRuleData> {
   constructor(name = "isAuthor", data?: AuthorRuleData) {
     super(name, {
       reallyReally: false,

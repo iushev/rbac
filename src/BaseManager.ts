@@ -26,12 +26,13 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param options
    */
   constructor(options?: BaseManagerOptions) {
+    const { defaultRoles, logging = false } = options ?? {};
+
     super({
-      defaultRoles: options?.defaultRoles,
+      defaultRoles: defaultRoles,
     });
 
-    this.logging =
-      options?.logging && Object.prototype.hasOwnProperty.call(options, "logging") ? options.logging : console.log;
+    this.logging = logging;
   }
 
   /**
@@ -39,25 +40,8 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @param args
    */
   protected log(...args: any[]) {
-    let logging;
-
-    const last = _.last(args);
-
-    if (last && _.isPlainObject(last) && Object.prototype.hasOwnProperty.call(last, "logging")) {
-      const options = last;
-
-      // remove options from set of logged arguments if options.logging is equal to console.log
-      // eslint-disable-next-line no-console
-      if (options.logging === console.log) {
-        args.splice(args.length - 1, 1);
-        logging = options.logging;
-      }
-    } else {
-      logging = this.logging;
-    }
-
-    if (logging) {
-      logging(...args);
+    if (this.logging) {
+      this.logging(...args);
     }
   }
 

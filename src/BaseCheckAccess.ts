@@ -62,7 +62,7 @@ export class BaseCheckAccess {
     params: RuleParams,
     assignments: Map<string, Assignment>
   ): Promise<boolean> {
-    const item = this.items?.get(itemName);
+    const item = this.items.get(itemName);
 
     if (!item) {
       return false;
@@ -105,7 +105,7 @@ export class BaseCheckAccess {
       return true;
     }
 
-    const rule = this.rules?.get(item.ruleName);
+    const rule = this.rules.get(item.ruleName);
 
     if (!rule) {
       throw new Error(`Rule "${item.ruleName}" does not exists. Or rules does not loaded.`);

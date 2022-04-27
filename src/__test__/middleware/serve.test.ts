@@ -1,25 +1,23 @@
 import http from "http";
 import express from "express";
 import supertest from "supertest";
-import path from "path";
 
-import rbac, { BaseManager, RbacUser, getRbac } from "../../src";
-import MockManager from "../MockManager";
+import MockManager, { prepareData } from "../MockManager";
+import BaseManager from "../../BaseManager";
+import User from "../../User";
+import rbac from "../../index";
+import { getRbac } from "../../middleware/getRbac";
 
 describe("RBAC Server", () => {
   let authManager: BaseManager;
   let app: express.Application;
   let httpServer: http.Server;
-  let getUser: (() => RbacUser) | null = null;
+  let getUser: (() => User) | null = null;
 
   beforeAll(async () => {
     // init http server;
-    authManager = new MockManager({
-      itemFile: path.join(__dirname, "../assets/rbac_items.json"),
-      assignmentFile: path.join(__dirname, "../assets/rbac_assignments.json"),
-      ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),
-      // logging: false,
-    });
+    authManager = new MockManager();
+    await prepareData(authManager);
 
     app = express();
     app.set("env", "test");
@@ -54,14 +52,14 @@ describe("RBAC Server", () => {
 
   test("Get RBAC Items", async () => {
     getUser = () => {
-      const user = new RbacUser(authManager);
+      const user = new User(authManager);
       user.identity = {
         username: "reader",
         isActive: true,
-        isSuperuser: false
-      }
+        isSuperuser: false,
+      };
       return user;
-    }
+    };
 
     const response = await supertest(httpServer).get("/api/rbac");
     expect(response).toBeTruthy();

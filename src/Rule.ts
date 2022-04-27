@@ -1,19 +1,17 @@
 import BaseCheckAccess from "./BaseCheckAccess";
 import { IItem } from "./Item";
 
-export type RuleParams = {
-  [key: string]: any;
-};
-
+export type RuleParams = Record<string, any>;
+export type RuleData = Record<string, any>;
 export type RuleExecuteFunction = (username: string, item: IItem, params: RuleParams) => Promise<boolean>;
 
-export class Rule<RuleData extends Record<string, any> = Record<string, never>> {
+export class Rule<TData extends RuleData = {}> {
   public name: string;
-  public data: RuleData;
+  public data: TData;
 
-  constructor(name = "", data?: RuleData) {
+  constructor(name = "", data?: TData) {
     this.name = name;
-    this.data = data ?? ({} as RuleData);
+    this.data = data ?? ({} as TData);
   }
 
   public static init(checkAccess: BaseCheckAccess) {

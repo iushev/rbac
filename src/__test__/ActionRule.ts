@@ -1,9 +1,11 @@
-import { IItem, Rule, RuleParams } from "../..";
+import { IItem } from "../Item";
+import { Rule, RuleParams } from "../Rule";
 
 export interface ActionRuleData {
   action: string;
 }
-export class ActionRule extends Rule<ActionRuleData> {
+
+export default class ActionRule extends Rule<ActionRuleData> {
   constructor(name = "action_rule", data?: ActionRuleData) {
     super(name, {
       action: "read",

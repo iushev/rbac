@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
 
 import { IItem, ItemType } from "../Item";

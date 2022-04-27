@@ -1,11 +1,12 @@
 import HttpStatus from "http-status-codes";
-import path from "path";
 
-import { BaseManager, JsonManager, RbacUser, Identity, checkAccess } from "../..";
+import checkAccess from "../../middleware/checkAccess";
+import User, { Identity } from "../../User";
+import MockManager, { prepareData } from "../MockManager";
 
 describe("Testing check access middleware", () => {
-  let authManager: BaseManager;
-  let user: RbacUser;
+  let authManager: MockManager;
+  let user: User;
 
   const userReader: Identity = {
     username: "reader",
@@ -25,18 +26,10 @@ describe("Testing check access middleware", () => {
     isSuperuser: false,
   };
 
-  beforeAll(() => {
-    authManager = new JsonManager({
-      itemFile: path.join(__dirname, "../assets/rbac_items.json"),
-      assignmentFile: path.join(__dirname, "../assets/rbac_assignments.json"),
-      ruleFile: path.join(__dirname, "../assets/rbac_rules.json"),
-      logging: false,
-    });
-    user = new RbacUser(authManager);
-  });
-
-  afterAll(async () => {
-    authManager.removeAll();
+  beforeAll(async () => {
+    authManager = new MockManager();
+    user = new User(authManager);
+    await prepareData(authManager);
   });
 
   const mockRequest = (): any => ({
