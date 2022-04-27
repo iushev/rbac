@@ -8,6 +8,9 @@ import ActionRule from "./ActionRule";
 export default class MockManager extends BaseManager {
   protected assignments: Map<string, Map<string, Assignment>> = new Map();
 
+  public load(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
   public getRolesByUser(_username: string): Promise<Map<string, Role>> {
     throw new Error("Method not implemented.");
   }
@@ -117,9 +120,6 @@ export default class MockManager extends BaseManager {
   protected updateRule(name: string, rule: Rule<any>): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  protected load(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
 }
 
 export async function prepareData(auth: BaseManager) {
@@ -135,21 +135,21 @@ export async function prepareData(auth: BaseManager) {
   });
   await auth.add(uniqueTrait);
 
-  const createPost = new Permission({ name: "createPost", description: "create a post" });
+  const createPost = new Permission({ name: "createPost", description: "Create a post" });
   await auth.add(createPost);
 
-  const readPost = new Permission({ name: "readPost", description: "read a post" });
+  const readPost = new Permission({ name: "readPost", description: "Read a post" });
   await auth.add(readPost);
 
-  const deletePost = new Permission({ name: "deletePost", description: "delete a post" });
+  const deletePost = new Permission({ name: "deletePost", description: "Delete a post" });
   await auth.add(deletePost);
 
-  const updatePost = new Permission({ name: "updatePost", description: "update any post" });
+  const updatePost = new Permission({ name: "updatePost", description: "Update any post" });
   await auth.add(updatePost);
 
   const updateOwnPost = new Permission({
     name: "updateOwnPost",
-    description: "update own post",
+    description: "Update own post",
     ruleName: authorRule.name,
   });
   await auth.add(updateOwnPost);
@@ -164,9 +164,9 @@ export async function prepareData(auth: BaseManager) {
 
   const author = new Role({ name: "author" });
   await auth.add(author);
+  await auth.addChild(author, reader);
   await auth.addChild(author, createPost);
   await auth.addChild(author, updateOwnPost);
-  await auth.addChild(author, reader);
 
   const admin = new Role({ name: "admin" });
   await auth.add(admin);

@@ -75,6 +75,11 @@ export default abstract class BaseManager extends BaseCheckAccess {
     };
   }
 
+  /**
+   * Load RBAC data
+   */
+  public abstract load(): Promise<void>;
+
   protected invalidateRbac() {
     this.parents.clear();
     this.items.clear();
@@ -406,11 +411,6 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @throws {Error} if data validation or saving fails (such as the name of the rule is not unique)
    */
   protected abstract updateRule(name: string, rule: Rule): Promise<boolean>;
-
-  /**
-   * Load RBAC data
-   */
-  protected abstract load(): Promise<void>;
 
   /**
    * Returns defaultRoles as Role objects.
