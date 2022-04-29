@@ -8,7 +8,7 @@ export interface Identity {
 }
 
 export default class User<T extends Identity = Identity> {
-  private _identity: T | false = false;
+  private _identity: T | null = null;
   private access: { [key: string]: boolean } = {};
   private authManager: BaseManager;
 
@@ -16,9 +16,9 @@ export default class User<T extends Identity = Identity> {
     this.authManager = authManager;
   }
 
-  set identity(identity: T | false) {
+  set identity(identity: T | null) {
     if (!identity) {
-      this._identity = false;
+      this._identity = null;
       return;
     }
 
@@ -30,19 +30,19 @@ export default class User<T extends Identity = Identity> {
   }
 
   get username() {
-    return this._identity !== false ? this._identity.username : false;
+    return this._identity !== null ? this._identity.username : false;
   }
 
   get isActive() {
-    return this._identity !== false ? this._identity.isActive : true;
+    return this._identity !== null ? this._identity.isActive : true;
   }
 
   get isSuperuser() {
-    return this._identity !== false ? this._identity.isSuperuser : false;
+    return this._identity !== null ? this._identity.isSuperuser : false;
   }
 
   get isGuest() {
-    return this._identity === false;
+    return this._identity === null;
   }
 
   async can(permissionName: string, params: RuleParams = {}, allowCaching = true): Promise<boolean> {
