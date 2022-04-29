@@ -4,7 +4,8 @@ import RbacUser, { Identity } from "./User";
 
 declare global {
   namespace Express {
-    type User = RbacUser;
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface User extends RbacUser {}
 
     interface Request {
       authManager: BaseManager;
