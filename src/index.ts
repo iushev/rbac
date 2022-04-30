@@ -2,17 +2,6 @@ import BaseManager, { BaseManagerOptions } from "./BaseManager";
 import Rbac from "./Rbac";
 import RbacUser, { Identity } from "./User";
 
-declare global {
-  namespace Express {
-    type User = RbacUser;
-
-    interface Request {
-      authManager: BaseManager;
-      user?: User;
-    }
-  }
-}
-
 export { Assignment } from "./Assignment";
 export { ItemType, IItem, Role, Permission } from "./Item";
 export { RuleParams, Rule, RuleExecuteFunction, RuleCtor } from "./Rule";
