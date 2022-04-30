@@ -17,3 +17,12 @@ export { RbacUser, Identity, BaseManager, BaseManagerOptions };
 
 const rbacManager = new Rbac();
 export default rbacManager;
+
+declare global {
+  namespace Express {
+    export interface Request {
+      authManager: BaseManager;
+      user?: User;
+    }
+  }
+}
