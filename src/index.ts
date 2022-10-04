@@ -20,6 +20,9 @@ export default rbacManager;
 
 declare global {
   namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    export interface User extends RbacUser { }
+
     export interface Request {
       authManager: BaseManager;
       user?: User;

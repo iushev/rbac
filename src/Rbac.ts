@@ -1,23 +1,17 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import BaseManager from "./BaseManager";
 
 import checkAccess, { CheckAccessOptions } from "./middleware/checkAccess";
 
 export type RbacOptions = {
   authManager: BaseManager;
-  rbacPath?: string;
 };
 
 export default class Rbac {
   private declare authManager: BaseManager;
-  private rbacPath = "/rbac";
 
-  initialize(options: RbacOptions) {
+  initialize(options: RbacOptions): RequestHandler {
     this.authManager = options.authManager;
-
-    if (options.rbacPath) {
-      this.rbacPath = options.rbacPath;
-    }
 
     return async (req: Request, _res: Response, next: NextFunction) => {
       req.authManager = this.authManager;
