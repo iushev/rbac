@@ -10,17 +10,16 @@ export interface IItem {
   ruleName: string | null;
 }
 
+export type ICreateItem = Omit<Item, "type" | "description" | "ruleName"> &
+  Partial<Pick<IItem, "description" | "ruleName">>;
+
 class Item implements IItem {
   public declare readonly type: ItemType;
   public name: string;
   public description: string | null;
   public ruleName: string | null;
 
-  constructor({
-    name,
-    description,
-    ruleName,
-  }: Omit<Item, "type" | "description" | "ruleName"> & Partial<Pick<Item, "description" | "ruleName">>) {
+  constructor({ name, description, ruleName }: ICreateItem) {
     this.name = name;
     this.description = description ?? null;
     this.ruleName = ruleName ?? null;

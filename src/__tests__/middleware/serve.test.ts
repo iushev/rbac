@@ -32,7 +32,7 @@ describe("RBAC Server", () => {
 
     app.get("/api/rbac", getRbac);
 
-    await new Promise<void>((resolve, _reject) => {
+    await new Promise<void>((resolve) => {
       httpServer.listen(3000, () => {
         resolve();
       });

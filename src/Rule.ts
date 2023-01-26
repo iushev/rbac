@@ -5,7 +5,7 @@ export type RuleParams = Record<string, any>;
 export type RuleData = Record<string, any>;
 export type RuleExecuteFunction = (username: string, item: IItem, params: RuleParams) => Promise<boolean>;
 
-export class Rule<TData extends RuleData = {}> {
+export class Rule<TData extends RuleData = Record<string, unknown>> {
   public name: string;
   public data: TData;
 
@@ -25,4 +25,4 @@ export class Rule<TData extends RuleData = {}> {
 
 export type RuleType = typeof Rule;
 
-export type RuleCtor<R extends Rule> = typeof Rule & { new (): R };
+export type RuleCtor<R extends Rule> = typeof Rule & { new(): R };

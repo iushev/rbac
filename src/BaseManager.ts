@@ -227,16 +227,16 @@ export default abstract class BaseManager extends BaseCheckAccess {
 
   /**
    * Checks the possibility of adding a child to parent.
-   * @param {Item} parent the parent item
-   * @param {Item} child the child item to be added to the hierarchy
+   * @param {IItem} parent the parent item
+   * @param {IItem} child the child item to be added to the hierarchy
    * @return {Promise<boolean>} possibility of adding
    */
   public abstract canAddChild(parent: IItem, child: IItem): Promise<boolean>;
 
   /**
    * Adds an item as a child of another item.
-   * @param {Item} parent
-   * @param {Item} child
+   * @param {IItem} parent
+   * @param {IItem} child
    * @return {Promise<boolean>} whether the child successfully added
    * @throws {Error} if the parent-child relationship already exists or if a loop has been detected.
    */
@@ -245,8 +245,8 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    * Removes a child from its parent.
    * Note, the child item is not deleted. Only the parent-child relationship is removed.
-   * @param {Item} parent
-   * @param {Item} child
+   * @param {IItem} parent
+   * @param {IItem} child
    * @return {Promise<boolean>} whether the removal is successful
    */
   public abstract removeChild(parent: IItem, child: IItem): Promise<boolean>;
@@ -254,15 +254,15 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    * Remove all children from their parent.
    * Note, the children items are not deleted. Only the parent-child relationships are removed.
-   * @param {Item} parent
+   * @param {IItem} parent
    * @return {Promise<boolean>} whether the removal is successful
    */
   public abstract removeChildren(parent: IItem): Promise<boolean>;
 
   /**
    * Returns a value indicating whether the child already exists for the parent.
-   * @param {Item} parent
-   * @param {Item} child
+   * @param {IItem} parent
+   * @param {IItem} child
    * @return {Promise<boolean>}  whether `child` is already a child of `parent`
    */
   public abstract hasChild(parent: IItem, child: IItem): Promise<boolean>;
@@ -270,7 +270,7 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    * Returns the child permissions and/or roles.
    * @param {string} name the parent name
-   * @return {Promise<Map<string, Item>>} the child permissions and/or roles
+   * @return {Promise<Map<string, IItem>>} the child permissions and/or roles
    */
   public abstract getChildren(name: string): Promise<Map<string, IItem>>;
 
@@ -351,24 +351,24 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    * Returns the named auth item.
    * @param {string} name the auth item name.
-   * @return {Promise<Item | null>} the auth item corresponding to the specified name. Null is returned if no such item.
+   * @return {Promise<IItem | null>} the auth item corresponding to the specified name. Null is returned if no such item.
    */
-  protected abstract getItem(name: string): Promise<IItem | null>;
+  public abstract getItem(name: string): Promise<IItem | null>;
 
   /**
    * Returns the items of the specified type.
    * @param {ItemType} type the auth item type
-   * @return {Promise<Map<string, Item>>} the auth items of the specified type.
+   * @return {Promise<Map<string, IItem>>} the auth items of the specified type.
    */
-  protected abstract getItems(type: ItemType): Promise<Map<string, IItem>>;
+  public abstract getItems(type: ItemType): Promise<Map<string, IItem>>;
 
   /**
    * Adds an auth item to the RBAC system.
-   * @param {Item} item the item to add
+   * @param {IItem} item the item to add
    * @return {Promise<boolean>} whether the auth item is successfully added to the system
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract addItem(item: IItem): Promise<boolean>;
+  public abstract addItem(item: IItem): Promise<boolean>;
 
   /**
    * Adds a rule to the RBAC system.
@@ -376,15 +376,15 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the rule is successfully added to the system
    * @throws {Error} if data validation or saving fails (such as the name of the rule is not unique)
    */
-  protected abstract addRule(rule: Rule): Promise<boolean>;
+  public abstract addRule(rule: Rule): Promise<boolean>;
 
   /**
    * Removes an auth item from the RBAC system.
-   * @param {Item} item the item to remove
+   * @param {IItem} item the item to remove
    * @return {Promise<boolean>} whether the role or permission is successfully removed
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract removeItem(item: IItem): Promise<boolean>;
+  public abstract removeItem(item: IItem): Promise<boolean>;
 
   /**
    * Removes a rule from the RBAC system.
@@ -392,16 +392,16 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the rule is successfully removed
    * @throws {Error} if data validation or saving fails (such as the name of the rule is not unique)
    */
-  protected abstract removeRule(rule: Rule): Promise<boolean>;
+  public abstract removeRule(rule: Rule): Promise<boolean>;
 
   /**
    * Updates an auth item in the RBAC system.
    * @param {string} name the name of the item being updated
-   * @param {Item} item the updated item
+   * @param {IItem} item the updated item
    * @return {Promise<boolean>} whether the auth item is successfully updated
    * @throws {Error} if data validation or saving fails (such as the name of the role or permission is not unique)
    */
-  protected abstract updateItem(name: string, item: IItem): Promise<boolean>;
+  public abstract updateItem(name: string, item: IItem): Promise<boolean>;
 
   /**
    * Updates a rule to the RBAC system.
@@ -410,13 +410,13 @@ export default abstract class BaseManager extends BaseCheckAccess {
    * @return {Promise<boolean>} whether the rule is successfully updated
    * @throws {Error} if data validation or saving fails (such as the name of the rule is not unique)
    */
-  protected abstract updateRule(name: string, rule: Rule): Promise<boolean>;
+  public abstract updateRule(name: string, rule: Rule): Promise<boolean>;
 
   /**
    * Returns defaultRoles as Role objects.
    * @return {Map<string, Role>} default roles.
    */
-  protected getDefaultRoleInstances(): Map<string, Role> {
+  public getDefaultRoleInstances(): Map<string, Role> {
     const roleInstances = new Map();
 
     this.defaultRoles.forEach((roleName) => {

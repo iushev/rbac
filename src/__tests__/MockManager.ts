@@ -95,30 +95,30 @@ export default class MockManager extends BaseManager {
   public removeAllAssignments(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  protected getItem(name: string): Promise<IItem | null> {
+  public getItem(name: string): Promise<IItem | null> {
     throw new Error("Method not implemented.");
   }
-  protected getItems(type: ItemType): Promise<Map<string, IItem>> {
+  public getItems(type: ItemType): Promise<Map<string, IItem>> {
     throw new Error("Method not implemented.");
   }
-  protected async addItem(item: IItem): Promise<boolean> {
+  public async addItem(item: IItem): Promise<boolean> {
     this.items.set(item.name, item);
     return true;
   }
-  protected async addRule(rule: Rule<any>): Promise<boolean> {
+  public async addRule(rule: Rule<any>): Promise<boolean> {
     this.rules.set(rule.name, rule);
     return true;
   }
-  protected removeItem(item: IItem): Promise<boolean> {
+  public removeItem(item: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  protected removeRule(rule: Rule<any>): Promise<boolean> {
+  public removeRule(rule: Rule<any>): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  protected updateItem(name: string, item: IItem): Promise<boolean> {
+  public updateItem(name: string, item: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  protected updateRule(name: string, rule: Rule<any>): Promise<boolean> {
+  public updateRule(name: string, rule: Rule<any>): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
 }
