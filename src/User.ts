@@ -7,8 +7,8 @@ export interface Identity {
   isSuperuser: boolean;
 }
 
-export default class User {
-  private _identity: Identity | null = null;
+export default class User<T extends Identity = Identity> {
+  private _identity: T | null = null;
   private access: { [key: string]: boolean } = {};
   private authManager: BaseManager;
 
@@ -16,7 +16,7 @@ export default class User {
     this.authManager = authManager;
   }
 
-  set identity(identity: Identity | null) {
+  set identity(identity: T | null) {
     if (!identity) {
       this._identity = null;
       return;
