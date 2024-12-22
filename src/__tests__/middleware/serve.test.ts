@@ -1,6 +1,6 @@
 import http from "http";
 import express from "express";
-import supertest from "supertest";
+import request from "supertest";
 
 import MockManager, { prepareData } from "../MockManager";
 import BaseManager from "../../BaseManager";
@@ -46,7 +46,7 @@ describe("RBAC Server", () => {
           console.error(err);
         }
         resolve();
-      })
+      }),
     );
   });
 
@@ -61,7 +61,7 @@ describe("RBAC Server", () => {
       return user;
     };
 
-    const response = await supertest(httpServer).get("/api/rbac");
+    const response = await request(httpServer).get("/api/rbac");
     expect(response).toBeTruthy();
     expect(response.body.items).toBeTruthy();
     expect(response.body.rules).toBeTruthy();
