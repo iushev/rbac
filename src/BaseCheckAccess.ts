@@ -60,7 +60,7 @@ export class BaseCheckAccess {
     username: string,
     itemName: string,
     params: RuleParams,
-    assignments: Map<string, Assignment>
+    assignments: Map<string, Assignment>,
   ): Promise<boolean> {
     const item = this.items.get(itemName);
 

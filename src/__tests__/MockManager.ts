@@ -18,10 +18,10 @@ export default class MockManager extends BaseManager {
   public getChildRoles(_roleName: string): Promise<Map<string, Role>> {
     throw new Error("Method not implemented.");
   }
-  public getPermissionsByRole(roleName: string): Promise<Map<string, Permission>> {
+  public getPermissionsByRole(_roleName: string): Promise<Map<string, Permission>> {
     throw new Error("Method not implemented.");
   }
-  public getPermissionsByUser(username: string): Promise<Map<string, Permission>> {
+  public getPermissionsByUser(_username: string): Promise<Map<string, Permission>> {
     throw new Error("Method not implemented.");
   }
   public async getRule(name: string): Promise<Rule<any> | null> {
@@ -30,7 +30,7 @@ export default class MockManager extends BaseManager {
   public getRules(): Promise<Map<string, Rule<any>>> {
     throw new Error("Method not implemented.");
   }
-  public canAddChild(parent: IItem, child: IItem): Promise<boolean> {
+  public canAddChild(_parent: IItem, _child: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
   public async addChild(parent: IItem, child: IItem): Promise<boolean> {
@@ -42,16 +42,16 @@ export default class MockManager extends BaseManager {
 
     return true;
   }
-  public removeChild(parent: IItem, child: IItem): Promise<boolean> {
+  public removeChild(_parent: IItem, _child: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public removeChildren(parent: IItem): Promise<boolean> {
+  public removeChildren(_parent: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public hasChild(parent: IItem, child: IItem): Promise<boolean> {
+  public hasChild(_parent: IItem, _child: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public getChildren(name: string): Promise<Map<string, IItem>> {
+  public getChildren(_name: string): Promise<Map<string, IItem>> {
     throw new Error("Method not implemented.");
   }
   public async assign(role: Role | Permission, username: string): Promise<Assignment> {
@@ -65,19 +65,19 @@ export default class MockManager extends BaseManager {
 
     return assignment;
   }
-  public revoke(role: Role | Permission, username: string): Promise<boolean> {
+  public revoke(_role: Role | Permission, _username: string): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public revokeAll(username: string): Promise<boolean> {
+  public revokeAll(_username: string): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public getAssignment(roleName: string, username: string): Promise<Assignment | null> {
+  public getAssignment(_roleName: string, _username: string): Promise<Assignment | null> {
     throw new Error("Method not implemented.");
   }
   public async getAssignments(username: string): Promise<Map<string, Assignment>> {
     return this.assignments.get(username) ?? new Map();
   }
-  public getUsernamesByRole(roleName: string): Promise<string[]> {
+  public getUsernamesByRole(_roleName: string): Promise<string[]> {
     throw new Error("Method not implemented.");
   }
   public removeAll(): Promise<void> {
@@ -95,10 +95,10 @@ export default class MockManager extends BaseManager {
   public removeAllAssignments(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  public getItem(name: string): Promise<IItem | null> {
+  public getItem(_name: string): Promise<IItem | null> {
     throw new Error("Method not implemented.");
   }
-  public getItems(type: ItemType): Promise<Map<string, IItem>> {
+  public getItems(_type: ItemType): Promise<Map<string, IItem>> {
     throw new Error("Method not implemented.");
   }
   public async addItem(item: IItem): Promise<boolean> {
@@ -109,16 +109,16 @@ export default class MockManager extends BaseManager {
     this.rules.set(rule.name, rule);
     return true;
   }
-  public removeItem(item: IItem): Promise<boolean> {
+  public removeItem(_item: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public removeRule(rule: Rule<any>): Promise<boolean> {
+  public removeRule(_rule: Rule<any>): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public updateItem(name: string, item: IItem): Promise<boolean> {
+  public updateItem(_name: string, _item: IItem): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
-  public updateRule(name: string, rule: Rule<any>): Promise<boolean> {
+  public updateRule(_name: string, _rule: Rule<any>): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
 }

@@ -19,10 +19,9 @@ export class Rule<TData extends RuleData = Record<string, unknown>> {
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute: RuleExecuteFunction = async (_username: string, _item: IItem, _params: RuleParams) => true;
 }
 
 export type RuleType = typeof Rule;
 
-export type RuleCtor<R extends Rule> = typeof Rule & { new(): R };
+export type RuleCtor<R extends Rule> = typeof Rule & { new (): R };

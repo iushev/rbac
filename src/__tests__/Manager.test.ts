@@ -60,11 +60,11 @@ test("Check access", async () => {
           (async () => {
             const result = await manager.checkAccess(username, permissionName, params);
             expect(result).toBe(tests[permissionName]);
-          })()
+          })(),
         );
       });
 
       return prevValue;
-    }, [])
+    }, []),
   );
 });

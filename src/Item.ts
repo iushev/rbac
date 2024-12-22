@@ -15,7 +15,7 @@ export type ICreateItem = Omit<Item, "type" | "description" | "ruleName" | "data
   Partial<Pick<IItem, "description" | "ruleName" | "data">>;
 
 class Item implements IItem {
-  public declare readonly type: ItemType;
+  declare public readonly type: ItemType;
   public name: string;
   public description: string | null;
   public ruleName: string | null;

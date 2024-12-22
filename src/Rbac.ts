@@ -8,7 +8,7 @@ export type RbacOptions = {
 };
 
 export default class Rbac {
-  private declare authManager: BaseManager;
+  declare private authManager: BaseManager;
 
   initialize(options: RbacOptions): RequestHandler {
     this.authManager = options.authManager;
