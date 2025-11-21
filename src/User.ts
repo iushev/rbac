@@ -46,6 +46,14 @@ export default class User<T extends Identity = Identity> {
   }
 
   async can(permissionName: string, params: RuleParams = {}, allowCaching = true): Promise<boolean> {
+    if (!this.isGuest && !this.isActive) {
+      return false;
+    }
+
+    if (this.isSuperuser) {
+      return true;
+    }
+
     if (allowCaching && Object.keys(params).length === 0 && this.access[permissionName]) {
       return this.access[permissionName];
     }
