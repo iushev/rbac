@@ -17,7 +17,7 @@ export type ResponseRule = {
   name: string;
   data: {
     typeName: string;
-    rule: string;
+    ruleData: string;
   };
 };
 
@@ -74,7 +74,7 @@ const rulesToObject = (mapRules: Map<string, Rule>) => {
       name: rule.name,
       data: {
         typeName: rule.constructor.name,
-        rule: JSON.stringify(rule),
+        ruleData: JSON.stringify(rule.data),
       },
     };
   }
