@@ -14,13 +14,13 @@ export {
 } from "./middleware/checkAccess";
 export { getRbac, RBACResponse } from "./middleware/getRbac";
 export { RbacUser, Identity, BaseManager, BaseManagerOptions };
+export { default as matchRole } from "./matchRole";
 
 const rbacManager = new Rbac();
 export default rbacManager;
 
 declare global {
   namespace Express {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     export interface User extends RbacUser {}
 
     export interface Request {

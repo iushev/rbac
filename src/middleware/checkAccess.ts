@@ -3,6 +3,7 @@ import requestIp from "request-ip";
 import HttpStatus from "http-status-codes";
 
 import { RuleParams } from "../Rule";
+import matchRole from "../matchRole";
 
 export type RuleParamsFunction = (req: Request) => RuleParams;
 export type MatchFunction = (req: Request) => boolean;
@@ -17,33 +18,6 @@ export type CheckAccessOptions = {
 
 const checkAccess = (options: CheckAccessOptions) => {
   const { roles, allow = true, params = {}, ips, match } = options;
-
-  const matchRole = async (req: Request) => {
-    if (!req.user) {
-      return false;
-    }
-
-    if (roles.length === 0) {
-      return true;
-    }
-
-    for (const role of roles) {
-      if (role === "?" && req.user.isGuest) {
-        // only guest users
-        return true;
-      } else if (role === "@" && !req.user.isGuest) {
-        // only authenticated users
-        return true;
-      } else if (await req.user.can(role, typeof params === "function" ? params(req) : params)) {
-        // only authenticated users that has permission
-        return true;
-      } else {
-        continue;
-      }
-    }
-
-    return false;
-  };
 
   const matchIP = (ip: string) => {
     if (!ips || ips.length === 0) {
@@ -87,7 +61,15 @@ const checkAccess = (options: CheckAccessOptions) => {
     try {
       if (
         req.user.isSuperuser ||
-        ((await matchRole(req)) && matchIP(requestIp.getClientIp(req) ?? "") && matchCustom(req) && allow)
+        ((await matchRole({
+          user: req.user,
+          roles,
+          allow,
+          params: typeof params === "function" ? params(req) : params,
+        })) &&
+          matchIP(requestIp.getClientIp(req) ?? "") &&
+          matchCustom(req) &&
+          allow)
       ) {
         return next();
       }
