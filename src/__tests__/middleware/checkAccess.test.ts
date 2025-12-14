@@ -51,25 +51,23 @@ describe("Testing check access middleware", () => {
     const res = mockResponse();
     const callback = jest.fn();
 
+    // Reader cannot create posts
     await checkAccess({ roles: ["createPost"] })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
+    // Reader can read posts
     await checkAccess({ roles: ["readPost"] })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: { author: userAuthor.username },
-    })(req, res, callback);
+    // Reader cannot update posts
+    await checkAccess({ roles: ["updatePost"], params: { author: userAuthor.username } })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: () => ({ author: userAuthor.username }),
-    })(req, res, callback);
+    /// Reader cannot update posts when params is function
+    await checkAccess({ roles: ["updatePost"], params: () => ({ author: userAuthor.username }) })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
   });
@@ -81,52 +79,51 @@ describe("Testing check access middleware", () => {
     const res = mockResponse();
     const callback = jest.fn();
 
+    // Author can create posts
     await checkAccess({ roles: ["createPost"] })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
+    // Author cannot create posts when allow is false
     await checkAccess({ allow: false, roles: ["createPost"] })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
+    // Author can read posts
     await checkAccess({ roles: ["readPost"] })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: { author: userAuthor.username },
-    })(req, res, callback);
+    // Author can update own posts
+    await checkAccess({ roles: ["updatePost"], params: { author: userAuthor.username } })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: () => ({ author: userAuthor.username }),
-    })(req, res, callback);
+    // Author can update own posts with params as function
+    await checkAccess({ roles: ["updatePost"], params: () => ({ author: userAuthor.username }) })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: { author: "fake-user" },
-    })(req, res, callback);
+    // Author cannot update others' posts
+    await checkAccess({ roles: ["updatePost"], params: { author: "fake-user" } })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      allow: false,
-      params: { author: userAdmin.username },
-    })(req, res, callback);
+    // Author cannot update posts when allow is false
+    await checkAccess({ roles: ["updatePost"], allow: false, params: { author: userAdmin.username } })(
+      req,
+      res,
+      callback,
+    );
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      allow: false,
-      params: () => ({ author: userAdmin.username }),
-    })(req, res, callback);
+    // Author cannot update posts when allow is false with params as function
+    await checkAccess({ roles: ["updatePost"], allow: false, params: () => ({ author: userAdmin.username }) })(
+      req,
+      res,
+      callback,
+    );
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
   });
@@ -138,29 +135,28 @@ describe("Testing check access middleware", () => {
     const res = mockResponse();
     const callback = jest.fn();
 
+    // Admin can create posts
     await checkAccess({ roles: ["createPost"] })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
+    // Admin cannot create posts when allow is false
     await checkAccess({ allow: false, roles: ["createPost"], params: [] })(req, res, callback);
     expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
     res.status.mockClear();
 
+    // Admin can read posts
     await checkAccess({ roles: ["readPost"] })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: { author: userAuthor.username },
-    })(req, res, callback);
+    // Admin can update any posts
+    await checkAccess({ roles: ["updatePost"], params: { author: userAuthor.username } })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
 
-    await checkAccess({
-      roles: ["updatePost"],
-      params: () => ({ author: userAuthor.username }),
-    })(req, res, callback);
+    // Admin can update any posts with params as function
+    await checkAccess({ roles: ["updatePost"], params: () => ({ author: userAuthor.username }) })(req, res, callback);
     expect(callback).toHaveBeenCalled();
     callback.mockClear();
   });
