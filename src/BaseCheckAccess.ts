@@ -4,6 +4,7 @@ import { RuleCtor, Rule, RuleParams } from "./Rule";
 
 export type BaseCheckAccessOptions = {
   defaultRoles?: string[];
+  logging?: false | ((...args: any[]) => void);
 };
 
 export class BaseCheckAccess {
@@ -38,11 +39,26 @@ export class BaseCheckAccess {
   // protected assignments: Map<string, Map<string, Assignment>> = new Map();
 
   /**
+   * @inheritdoc
+   */
+  protected logging: false | ((...args: any[]) => void);
+
+  /**
    *
    * @param options
    */
-  constructor(options: BaseCheckAccessOptions) {
-    this.defaultRoles = options?.defaultRoles ?? [];
+  constructor(options?: BaseCheckAccessOptions) {
+    this.defaultRoles = options?.defaultRoles ?? ["guest"];
+    this.logging = options?.logging ?? false;
+  }
+
+  /**
+   * @param args
+   */
+  protected log(...args: any[]) {
+    if (this.logging) {
+      this.logging(...args);
+    }
   }
 
   /**
