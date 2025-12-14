@@ -41,7 +41,7 @@
     "request-ip": "^3.3.0"
   },
   "peerDependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1 || ^4.22.1"
   },
   "publishConfig": {
     "access": "public"
