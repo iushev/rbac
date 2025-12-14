@@ -78,28 +78,36 @@ export class BaseCheckAccess {
     params: RuleParams,
     assignments: Map<string, Assignment>,
   ): Promise<boolean> {
+    this.log(`Checking access: username=${username}, itemName=${itemName}`);
     const item = this.items.get(itemName);
 
     if (!item) {
+      this.log(`Item "${itemName}" not found`);
       return false;
     }
 
     if (!(await this.executeRule(username, item, params))) {
+      this.log(`Rule for item "${itemName}" denied access`);
       return false;
     }
 
     if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
+      this.log(`Access granted to item "${itemName}" for user "${username}"`);
       return true;
     }
 
     const parents = this.parents.get(itemName);
+    this.log(`Looking for parents of item "${itemName}"`);
     if (parents && parents.size > 0) {
       for (const parentName of parents.keys()) {
         if (await this.checkAccess(username, parentName, params, assignments)) {
+          this.log(`Access granted to parent item "${parentName}" for user "${username}"`);
           return true;
         }
       }
     }
+
+    this.log(`Access denied to item "${itemName}" for user "${username}"`);
     return false;
   }
 
@@ -118,6 +126,7 @@ export class BaseCheckAccess {
    */
   protected async executeRule(username: string, item: IItem, params: RuleParams): Promise<boolean> {
     if (!item.ruleName) {
+      this.log(`No rule for item "${item.name}", allowing access`);
       return true;
     }
 
@@ -127,6 +136,7 @@ export class BaseCheckAccess {
       throw new Error(`Rule "${item.ruleName}" does not exists. Or rules does not loaded.`);
     }
 
+    this.log(`Executing rule "${item.ruleName}" for item "${item.name}"`);
     return rule.execute(username, item, params);
   }
 }
