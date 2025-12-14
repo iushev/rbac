@@ -18,11 +18,6 @@ export interface BaseManagerOptions {
 export default abstract class BaseManager extends BaseCheckAccess {
   /**
    *
-   */
-  protected logging: false | ((...args: any[]) => void);
-
-  /**
-   *
    * @param options
    */
   constructor(options?: BaseManagerOptions) {
@@ -30,19 +25,8 @@ export default abstract class BaseManager extends BaseCheckAccess {
 
     super({
       defaultRoles: defaultRoles,
+      logging: logging,
     });
-
-    this.logging = logging;
-  }
-
-  /**
-   *
-   * @param args
-   */
-  protected log(...args: any[]) {
-    if (this.logging) {
-      this.logging(...args);
-    }
   }
 
   /**
