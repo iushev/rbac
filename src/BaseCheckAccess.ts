@@ -79,6 +79,7 @@ export class BaseCheckAccess {
     assignments: Map<string, Assignment>,
   ): Promise<boolean> {
     this.log(`Checking access: username=${username}, itemName=${itemName}`);
+
     const item = this.items.get(itemName);
 
     if (!item) {

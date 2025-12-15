@@ -9,17 +9,18 @@
   "main": "lib/index",
   "types": "lib/index",
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf ./lib && tsc",
     "watch": "tsc -w --preserveWatchOutput",
     "test": "jest --runInBand",
     "test:watch": "jest --watch --runInBand",
     "coverage": "jest --coverage --runInBand",
     "lint": "eslint src",
-    "preversion": "rimraf ./lib && npm run build"
+    "preversion": "npm run build"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.4",
     "@types/lodash": "^4.17.21",
     "@types/request-ip": "^0.0.41",
     "@types/supertest": "^6.0.3",

@@ -10,10 +10,10 @@ export interface Identity {
 export default class User<T extends Identity = Identity> {
   private _identity: T | null = null;
   private access: { [key: string]: boolean } = {};
-  private authManager: BaseManager;
+  private accessChecker: BaseManager;
 
-  constructor(authManager: BaseManager) {
-    this.authManager = authManager;
+  constructor(accessChecker: BaseManager) {
+    this.accessChecker = accessChecker;
   }
 
   set identity(identity: T | null) {
@@ -30,7 +30,7 @@ export default class User<T extends Identity = Identity> {
   }
 
   get username() {
-    return this._identity?.username ?? false;
+    return this._identity?.username ?? "guest";
   }
 
   get isActive() {
@@ -58,7 +58,7 @@ export default class User<T extends Identity = Identity> {
       return this.access[permissionName];
     }
 
-    const access = await this.authManager.checkAccess(this.username || "", permissionName, params);
+    const access = await this.accessChecker.checkAccess(this.username, permissionName, params);
 
     if (allowCaching && params.length === 0) {
       this.access[permissionName] = access;
