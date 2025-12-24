@@ -45,7 +45,15 @@ export default class User<T extends Identity = Identity> {
     return this._identity === null;
   }
 
-  async can(permissionName: string, params: RuleParams = {}, allowCaching = true): Promise<boolean> {
+  async can({
+    permissionName,
+    params = {},
+    allowCaching = true,
+  }: {
+    permissionName: string;
+    params?: RuleParams;
+    allowCaching?: boolean;
+  }): Promise<boolean> {
     if (!this.isGuest && !this.isActive) {
       return false;
     }

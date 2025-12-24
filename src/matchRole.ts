@@ -26,7 +26,7 @@ const matchRole = async (options: CheckAccessOptions) => {
     } else if (role === "@" && !user.isGuest && allow) {
       // only authenticated users
       return true;
-    } else if ((await user.can(role, params)) && allow) {
+    } else if ((await user.can({ permissionName: role, params })) && allow) {
       // only authenticated users that has permission
       return true;
     } else {
