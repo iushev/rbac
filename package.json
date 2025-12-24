@@ -1,6 +1,6 @@
 {
   "name": "@iushev/rbac",
-  "version": "1.0.55",
+  "version": "1.0.56",
   "private": false,
   "author": "Ivaylo Ushev",
   "description": "Role Based Access Control",
