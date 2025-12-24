@@ -49,10 +49,12 @@ export default class User<T extends Identity = Identity> {
     permissionName,
     params = {},
     allowCaching = true,
+    logging = false,
   }: {
     permissionName: string;
     params?: RuleParams;
     allowCaching?: boolean;
+    logging?: false | ((...args: any[]) => void);
   }): Promise<boolean> {
     if (!this.isGuest && !this.isActive) {
       return false;
@@ -66,7 +68,12 @@ export default class User<T extends Identity = Identity> {
       return this.access[permissionName];
     }
 
-    const access = await this.accessChecker.checkAccess({ username: this.username, itemName: permissionName, params });
+    const access = await this.accessChecker.checkAccess({
+      username: this.username,
+      itemName: permissionName,
+      params,
+      logging,
+    });
 
     if (allowCaching && Object.keys(params).length === 0) {
       this.access[permissionName] = access;
