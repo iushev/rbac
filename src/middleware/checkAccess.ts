@@ -14,13 +14,16 @@ export type CheckAccessOptions = {
   params?: RuleParams | RuleParamsFunction;
   ips?: string[];
   match?: MatchFunction;
+  logging?: false | ((...args: any[]) => void);
 };
 
 const checkAccess = (options: CheckAccessOptions) => {
-  const { roles, allow = true, params = {}, ips, match } = options;
-
+  const { roles, allow = true, params = {}, ips, match, logging = false } = options;
   const matchIP = (ip: string) => {
     if (!ips || ips.length === 0) {
+      if (logging) {
+        logging("No IP restrictions set, allowing all IPs");
+      }
       return true;
     }
 
@@ -44,6 +47,9 @@ const checkAccess = (options: CheckAccessOptions) => {
 
   const matchCustom = (req: Request) => {
     if (!match) {
+      if (logging) {
+        logging("No custom match function provided, allowing all requests");
+      }
       return true;
     }
     return match(req);
@@ -51,10 +57,16 @@ const checkAccess = (options: CheckAccessOptions) => {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
+      if (logging) {
+        logging("req.user is not initialized");
+      }
       return next("req.user is not initialized");
     }
 
     if (!req.user.isGuest && !req.user.isActive) {
+      if (logging) {
+        logging(`User ${req.user.username} is inactive`);
+      }
       return res.status(HttpStatus.UNAUTHORIZED).send("Inactive user");
     }
 
@@ -66,14 +78,21 @@ const checkAccess = (options: CheckAccessOptions) => {
           roles,
           allow,
           params: typeof params === "function" ? params(req) : params,
+          logging,
         })) &&
           matchIP(requestIp.getClientIp(req) ?? "") &&
           matchCustom(req) &&
           allow)
       ) {
+        if (logging) {
+          logging(`Access granted to user ${req.user.username} for roles [${roles.join(", ")}]`);
+        }
         return next();
       }
 
+      if (logging) {
+        logging(`Access denied to user ${req.user.username} for roles [${roles.join(", ")}]`);
+      }
       return res.status(HttpStatus.UNAUTHORIZED).send("Unauthorized");
     } catch (err) {
       next(err);
