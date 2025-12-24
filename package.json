@@ -15,7 +15,8 @@
     "test:watch": "jest --watch --runInBand",
     "coverage": "jest --coverage --runInBand",
     "lint": "eslint src",
-    "preversion": "npm run build"
+    "preversion": "npm run build",
+    "publish": "npm version patch && npm publish"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
