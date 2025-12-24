@@ -32,15 +32,25 @@ export default abstract class BaseManager extends BaseCheckAccess {
   /**
    * @inheritdoc
    */
-  public async checkAccess(username: string, permissionName: string, params: RuleParams): Promise<boolean> {
-    this.log(`Checking access: username=${username}, permissionName=${permissionName}`);
+  public async checkAccess({
+    username,
+    itemName,
+    params,
+    logging,
+  }: {
+    username: string;
+    itemName: string;
+    params: RuleParams;
+    logging?: false | ((...args: any[]) => void);
+  }): Promise<boolean> {
+    this.log(`Checking access: username=${username}, permissionName=${itemName}`);
 
     if (this.items.size === 0) {
       await this.load();
     }
 
     const assignments = await this.getAssignments(username);
-    return super.checkAccess(username, permissionName, params, assignments);
+    return super.checkAccess({ username, itemName, params, assignments, logging });
   }
 
   /**

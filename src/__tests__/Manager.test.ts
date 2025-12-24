@@ -58,7 +58,7 @@ test("Check access", async () => {
       Object.keys(tests).forEach((permissionName) => {
         prevValue.push(
           (async () => {
-            const result = await manager.checkAccess(username, permissionName, params);
+            const result = await manager.checkAccess({ username, itemName: permissionName, params });
             expect(result).toBe(tests[permissionName]);
           })(),
         );

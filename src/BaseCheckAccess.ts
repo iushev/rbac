@@ -72,44 +72,79 @@ export class BaseCheckAccess {
    * @param {Map<string, Assignment>} assignments the assignments to the specified user
    * @return {boolean} whether the operations can be performed by the user.
    */
-  public async checkAccess(
-    username: string,
-    itemName: string,
-    params: RuleParams,
-    assignments: Map<string, Assignment>,
-  ): Promise<boolean> {
-    this.log(`Checking access: username=${username}, itemName=${itemName}`);
+  public async checkAccess({
+    username,
+    itemName,
+    params,
+    assignments,
+    logging,
+  }: {
+    username: string;
+    itemName: string;
+    params: RuleParams;
+    assignments: Map<string, Assignment>;
+    logging?: false | ((...args: any[]) => void);
+  }): Promise<boolean> {
+    const originalLogging = this.logging;
 
-    const item = this.items.get(itemName);
+    try {
+      if (logging !== undefined) {
+        this.logging = logging;
+      }
 
-    if (!item) {
-      this.log(`Item "${itemName}" not found`);
-      return false;
-    }
+      this.log(`Checking access: username=${username}, itemName=${itemName}`);
 
-    if (!(await this.executeRule(username, item, params))) {
-      this.log(`Rule for item "${itemName}" denied access`);
-      return false;
-    }
+      const item = this.items.get(itemName);
 
-    if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
-      this.log(`Access granted to item "${itemName}" for user "${username}"`);
-      return true;
-    }
+      if (!item) {
+        this.log(`Item "${itemName}" not found`);
+        if (logging !== undefined) {
+          this.logging = originalLogging;
+        }
+        return false;
+      }
 
-    const parents = this.parents.get(itemName);
-    this.log(`Looking for parents of item "${itemName}"`);
-    if (parents && parents.size > 0) {
-      for (const parentName of parents.keys()) {
-        if (await this.checkAccess(username, parentName, params, assignments)) {
-          this.log(`Access granted to parent item "${parentName}" for user "${username}"`);
-          return true;
+      if (!(await this.executeRule(username, item, params))) {
+        this.log(`Rule for item "${itemName}" denied access`);
+        if (logging !== undefined) {
+          this.logging = originalLogging;
+        }
+        return false;
+      }
+
+      if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
+        this.log(`Access granted to item "${itemName}" for user "${username}"`);
+        if (logging !== undefined) {
+          this.logging = originalLogging;
+        }
+        return true;
+      }
+
+      const parents = this.parents.get(itemName);
+      this.log(`Looking for parents of item "${itemName}"`);
+      if (parents && parents.size > 0) {
+        for (const parentName of parents.keys()) {
+          if (await this.checkAccess({ username, itemName: parentName, params, assignments })) {
+            this.log(`Access granted to parent item "${parentName}" for user "${username}"`);
+            if (logging !== undefined) {
+              this.logging = originalLogging;
+            }
+            return true;
+          }
         }
       }
-    }
 
-    this.log(`Access denied to item "${itemName}" for user "${username}"`);
-    return false;
+      this.log(`Access denied to item "${itemName}" for user "${username}"`);
+      if (logging !== undefined) {
+        this.logging = originalLogging;
+      }
+      return false;
+    } catch (error) {
+      if (logging !== undefined) {
+        this.logging = originalLogging;
+      }
+      throw error;
+    }
   }
 
   /**

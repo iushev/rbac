@@ -58,9 +58,9 @@ export default class User<T extends Identity = Identity> {
       return this.access[permissionName];
     }
 
-    const access = await this.accessChecker.checkAccess(this.username, permissionName, params);
+    const access = await this.accessChecker.checkAccess({ username: this.username, itemName: permissionName, params });
 
-    if (allowCaching && params.length === 0) {
+    if (allowCaching && Object.keys(params).length === 0) {
       this.access[permissionName] = access;
     }
 
