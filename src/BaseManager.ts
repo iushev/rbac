@@ -43,7 +43,9 @@ export default abstract class BaseManager extends BaseCheckAccess {
     params: RuleParams;
     logging?: false | ((...args: any[]) => void);
   }): Promise<boolean> {
-    this.log(`Checking access: username=${username}, permissionName=${itemName}`);
+    this.log(
+      `BaseManager.checkAccess: username=${username}, permissionName=${itemName}, params=${JSON.stringify(params)}`,
+    );
 
     if (this.items.size === 0) {
       await this.load();

@@ -92,12 +92,14 @@ export class BaseCheckAccess {
         this.logging = logging;
       }
 
-      this.log(`Checking access: username=${username}, itemName=${itemName}`);
+      this.log(
+        `BaseCheckAccess.checkAccess: username=${username}, itemName=${itemName}, params=${JSON.stringify(params)}`,
+      );
 
       const item = this.items.get(itemName);
 
       if (!item) {
-        this.log(`Item "${itemName}" not found`);
+        this.log(`BaseCheckAccess.checkAccess: Item "${itemName}" not found`);
         if (logging !== undefined) {
           this.logging = originalLogging;
         }
@@ -105,7 +107,7 @@ export class BaseCheckAccess {
       }
 
       if (!(await this.executeRule(username, item, params))) {
-        this.log(`Rule for item "${itemName}" denied access`);
+        this.log(`BaseCheckAccess.checkAccess: Rule for item "${itemName}" denied access`);
         if (logging !== undefined) {
           this.logging = originalLogging;
         }
@@ -113,7 +115,7 @@ export class BaseCheckAccess {
       }
 
       if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
-        this.log(`Access granted to item "${itemName}" for user "${username}"`);
+        this.log(`BaseCheckAccess.checkAccess: Access granted to item "${itemName}" for user "${username}"`);
         if (logging !== undefined) {
           this.logging = originalLogging;
         }
@@ -121,11 +123,16 @@ export class BaseCheckAccess {
       }
 
       const parents = this.parents.get(itemName);
-      this.log(`Looking for parents of item "${itemName}"`);
+      this.log(`BaseCheckAccess.checkAccess: Found ${parents ? parents.size : 0} parents for item "${itemName}"`);
       if (parents && parents.size > 0) {
+        this.log(
+          `BaseCheckAccess.checkAccess: Checking parents of item "${itemName}": ${Array.from(parents.keys()).join(", ")}`,
+        );
         for (const parentName of parents.keys()) {
           if (await this.checkAccess({ username, itemName: parentName, params, assignments })) {
-            this.log(`Access granted to parent item "${parentName}" for user "${username}"`);
+            this.log(
+              `BaseCheckAccess.checkAccess: Access granted to parent item "${parentName}" for user "${username}"`,
+            );
             if (logging !== undefined) {
               this.logging = originalLogging;
             }
@@ -134,7 +141,7 @@ export class BaseCheckAccess {
         }
       }
 
-      this.log(`Access denied to item "${itemName}" for user "${username}"`);
+      this.log(`BaseCheckAccess.checkAccess: Access denied to item "${itemName}" for user "${username}"`);
       if (logging !== undefined) {
         this.logging = originalLogging;
       }
@@ -161,8 +168,9 @@ export class BaseCheckAccess {
    * @throws {Error} if the auth item has an invalid rule.
    */
   protected async executeRule(username: string, item: IItem, params: RuleParams): Promise<boolean> {
+    this.log(`BaseCheckAccess.executeRule: Executing rule for item "${item.name}"`);
     if (!item.ruleName) {
-      this.log(`No rule for item "${item.name}", allowing access`);
+      this.log(`BaseCheckAccess.executeRule: No rule for item "${item.name}", allowing access`);
       return true;
     }
 
@@ -172,7 +180,7 @@ export class BaseCheckAccess {
       throw new Error(`Rule "${item.ruleName}" does not exists. Or rules does not loaded.`);
     }
 
-    this.log(`Executing rule "${item.ruleName}" for item "${item.name}"`);
+    this.log(`BaseCheckAccess.executeRule: Executing rule "${item.ruleName}" for item "${item.name}"`);
     return rule.execute(username, item, params);
   }
 }
