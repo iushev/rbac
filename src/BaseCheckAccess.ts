@@ -53,15 +53,6 @@ export class BaseCheckAccess {
   }
 
   /**
-   * @param args
-   */
-  protected log(...args: any[]) {
-    if (this.logging) {
-      this.logging(...args);
-    }
-  }
-
-  /**
    * Performs access check for the specified user.
    * @param {string} username the user ID. This should can be either an integer or a string representing
    * the unique identifier of a user.
@@ -83,75 +74,49 @@ export class BaseCheckAccess {
     itemName: string;
     params: RuleParams;
     assignments: Map<string, Assignment>;
-    logging?: false | ((...args: any[]) => void);
+    logging?: (...args: any[]) => void;
   }): Promise<boolean> {
-    const originalLogging = this.logging;
+    logging = this.logging ? this.logging : logging;
 
-    try {
-      if (logging !== undefined) {
-        this.logging = logging;
-      }
+    logging?.(
+      `BaseCheckAccess.checkAccess: username=${username}, itemName=${itemName}, params=${JSON.stringify(params)}`,
+    );
 
-      this.log(
-        `BaseCheckAccess.checkAccess: username=${username}, itemName=${itemName}, params=${JSON.stringify(params)}`,
-      );
+    const item = this.items.get(itemName);
 
-      const item = this.items.get(itemName);
-
-      if (!item) {
-        this.log(`BaseCheckAccess.checkAccess: Item "${itemName}" not found`);
-        if (logging !== undefined) {
-          this.logging = originalLogging;
-        }
-        return false;
-      }
-
-      if (!(await this.executeRule(username, item, params))) {
-        this.log(`BaseCheckAccess.checkAccess: Rule for item "${itemName}" denied access`);
-        if (logging !== undefined) {
-          this.logging = originalLogging;
-        }
-        return false;
-      }
-
-      if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
-        this.log(`BaseCheckAccess.checkAccess: Access granted to item "${itemName}" for user "${username}"`);
-        if (logging !== undefined) {
-          this.logging = originalLogging;
-        }
-        return true;
-      }
-
-      const parents = this.parents.get(itemName);
-      this.log(`BaseCheckAccess.checkAccess: Found ${parents ? parents.size : 0} parents for item "${itemName}"`);
-      if (parents && parents.size > 0) {
-        this.log(
-          `BaseCheckAccess.checkAccess: Checking parents of item "${itemName}": ${Array.from(parents.keys()).join(", ")}`,
-        );
-        for (const parentName of parents.keys()) {
-          if (await this.checkAccess({ username, itemName: parentName, params, assignments })) {
-            this.log(
-              `BaseCheckAccess.checkAccess: Access granted to parent item "${parentName}" for user "${username}"`,
-            );
-            if (logging !== undefined) {
-              this.logging = originalLogging;
-            }
-            return true;
-          }
-        }
-      }
-
-      this.log(`BaseCheckAccess.checkAccess: Access denied to item "${itemName}" for user "${username}"`);
-      if (logging !== undefined) {
-        this.logging = originalLogging;
-      }
+    if (!item) {
+      logging?.(`BaseCheckAccess.checkAccess: Item "${itemName}" not found. Access denied.`);
       return false;
-    } catch (error) {
-      if (logging !== undefined) {
-        this.logging = originalLogging;
-      }
-      throw error;
     }
+
+    if (!(await this.executeRule(username, item, params, logging))) {
+      logging?.(`BaseCheckAccess.checkAccess: Rule for item "${itemName}" denied access`);
+      return false;
+    }
+
+    if (assignments.has(itemName) || this.defaultRoles.includes(itemName)) {
+      logging?.(`BaseCheckAccess.checkAccess: Access granted to item "${itemName}" for user "${username}"`);
+      return true;
+    }
+
+    const parents = this.parents.get(itemName);
+    logging?.(`BaseCheckAccess.checkAccess: Found ${parents ? parents.size : 0} parents for item "${itemName}"`);
+    if (parents && parents.size > 0) {
+      logging?.(
+        `BaseCheckAccess.checkAccess: Checking parents of item "${itemName}": ${Array.from(parents.keys()).join(", ")}`,
+      );
+      for (const parentName of parents.keys()) {
+        if (await this.checkAccess({ username, itemName: parentName, params, assignments })) {
+          logging?.(
+            `BaseCheckAccess.checkAccess: Access granted to parent item "${parentName}" for user "${username}"`,
+          );
+          return true;
+        }
+      }
+    }
+
+    logging?.(`BaseCheckAccess.checkAccess: Access denied to item "${itemName}" for user "${username}"`);
+    return false;
   }
 
   /**
@@ -167,10 +132,17 @@ export class BaseCheckAccess {
    * @return {boolean} the return value of Rule::execute(). If the auth item does not specify a rule, true will be returned.
    * @throws {Error} if the auth item has an invalid rule.
    */
-  protected async executeRule(username: string, item: IItem, params: RuleParams): Promise<boolean> {
-    this.log(`BaseCheckAccess.executeRule: Executing rule for item "${item.name}"`);
+  protected async executeRule(
+    username: string,
+    item: IItem,
+    params: RuleParams,
+    logging?: (...args: any[]) => void,
+  ): Promise<boolean> {
+    logging = this.logging ? this.logging : logging;
+
+    logging?.(`BaseCheckAccess.executeRule: Executing rule for item "${item.name}"`);
     if (!item.ruleName) {
-      this.log(`BaseCheckAccess.executeRule: No rule for item "${item.name}", allowing access`);
+      logging?.(`BaseCheckAccess.executeRule: No rule for item "${item.name}", allowing access`);
       return true;
     }
 
@@ -180,7 +152,7 @@ export class BaseCheckAccess {
       throw new Error(`Rule "${item.ruleName}" does not exists. Or rules does not loaded.`);
     }
 
-    this.log(`BaseCheckAccess.executeRule: Executing rule "${item.ruleName}" for item "${item.name}"`);
+    logging?.(`BaseCheckAccess.executeRule: Executing rule "${item.ruleName}" for item "${item.name}"`);
     return rule.execute(username, item, params);
   }
 }
