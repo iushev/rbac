@@ -49,12 +49,12 @@ export default class User<T extends Identity = Identity> {
     permissionName,
     params = {},
     allowCaching = true,
-    logging = false,
+    logging,
   }: {
     permissionName: string;
     params?: RuleParams;
     allowCaching?: boolean;
-    logging?: false | ((...args: any[]) => void);
+    logging?: (...args: any[]) => void;
   }): Promise<boolean> {
     if (!this.isGuest && !this.isActive) {
       return false;

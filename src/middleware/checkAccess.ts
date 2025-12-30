@@ -14,16 +14,14 @@ export type CheckAccessOptions = {
   params?: RuleParams | RuleParamsFunction;
   ips?: string[];
   match?: MatchFunction;
-  logging?: false | ((...args: any[]) => void);
+  logging?: (...args: any[]) => void;
 };
 
 const checkAccess = (options: CheckAccessOptions) => {
-  const { roles, allow = true, params = {}, ips, match, logging = false } = options;
+  const { roles, allow = true, params = {}, ips, match, logging } = options;
   const matchIP = (ip: string) => {
     if (!ips || ips.length === 0) {
-      if (logging) {
-        logging("No IP restrictions set, allowing all IPs");
-      }
+      logging?.("No IP restrictions set, allowing all IPs");
       return true;
     }
 
@@ -47,9 +45,7 @@ const checkAccess = (options: CheckAccessOptions) => {
 
   const matchCustom = (req: Request) => {
     if (!match) {
-      if (logging) {
-        logging("No custom match function provided, allowing all requests");
-      }
+      logging?.("No custom match function provided, allowing all requests");
       return true;
     }
     return match(req);
@@ -57,17 +53,15 @@ const checkAccess = (options: CheckAccessOptions) => {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      if (logging) {
-        logging("req.user is not initialized");
-      }
-      return next("req.user is not initialized");
+      logging?.("req.user is not initialized");
+      next("req.user is not initialized");
+      return;
     }
 
     if (!req.user.isGuest && !req.user.isActive) {
-      if (logging) {
-        logging(`User ${req.user.username} is inactive`);
-      }
-      return res.status(HttpStatus.UNAUTHORIZED).send("Inactive user");
+      logging?.(`User ${req.user.username} is inactive`);
+      res.status(HttpStatus.UNAUTHORIZED).send("Inactive user");
+      return;
     }
 
     try {
@@ -84,16 +78,14 @@ const checkAccess = (options: CheckAccessOptions) => {
           matchCustom(req) &&
           allow)
       ) {
-        if (logging) {
-          logging(`Access granted to user ${req.user.username} for roles [${roles.join(", ")}]`);
-        }
-        return next();
+        logging?.(`Access granted to user ${req.user.username} for roles [${roles.join(", ")}]`);
+        next();
+        return;
       }
 
-      if (logging) {
-        logging(`Access denied to user ${req.user.username} for roles [${roles.join(", ")}]`);
-      }
-      return res.status(HttpStatus.UNAUTHORIZED).send("Unauthorized");
+      logging?.(`Access denied to user ${req.user.username} for roles [${roles.join(", ")}]`);
+      res.status(HttpStatus.UNAUTHORIZED).send("Unauthorized");
+      return;
     } catch (err) {
       next(err);
     }
