@@ -1,0 +1,212 @@
+:root {
+  --bg: #fbfbfa;
+  --fg: #1c1b19;
+  --muted: #6b6a67;
+  --line: #dfdedb;
+  --card: #ffffff;
+  --accent: #2f5d8a;
+  --danger: #9b3030;
+  --ok: #2c6b45;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a;
+    --fg: #e9e8e6;
+    --muted: #9b9a97;
+    --line: #33333a;
+    --card: #1f1f24;
+    --accent: #8ab4de;
+    --danger: #e08a8a;
+    --ok: #8fd0aa;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font:
+    15px/1.55 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav a.active,
+nav a:hover {
+  color: var(--fg);
+}
+
+.session {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+footer {
+  margin-top: 2.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.post,
+.probe {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin: 0.75rem 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+}
+
+button {
+  cursor: pointer;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.ghost {
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.notice {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.notice--denied {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.notice--error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.notice--ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+/* Held while a check runs, so the row does not jump when the answer arrives. */
+.skeleton {
+  display: inline-block;
+  width: 5.5rem;
+  height: 1.9rem;
+  border-radius: 6px;
+  background: var(--line);
+  opacity: 0.4;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0.4rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+code {
+  font-size: 0.9em;
+  background: var(--line);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+}

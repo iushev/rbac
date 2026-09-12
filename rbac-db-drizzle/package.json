@@ -1,0 +1,83 @@
+{
+  "name": "@iushev/rbac-db-drizzle",
+  "version": "2.0.0",
+  "description": "PostgreSQL (Drizzle ORM) storage for rbac",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "rbac-db-drizzle-migrate": "./bin/rbac-db-drizzle-migrate.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./migrator": {
+      "types": "./dist/migrator.d.ts",
+      "default": "./dist/migrator.js"
+    },
+    "./migrations/*.js": {
+      "types": "./dist/migrations/*.d.ts",
+      "default": "./dist/migrations/*.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down -v",
+    "prepublishOnly": "npm run clean && npm run build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "rbac",
+    "authorization",
+    "permissions",
+    "postgresql",
+    "drizzle",
+    "drizzle-orm",
+    "typescript"
+  ],
+  "author": "Ivaylo Ushev",
+  "license": "MIT",
+  "peerDependencies": {
+    "drizzle-orm": "^0.45.0",
+    "pg": "^8.0.0",
+    "@iushev/rbac": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "pg": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.4.1",
+    "@types/pg": "^8.23.1",
+    "drizzle-orm": "^0.45.2",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "pg": "^8.23.0",
+    "prettier": "^3.9.6",
+    "@iushev/rbac": "^2.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
+  }
+}

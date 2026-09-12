@@ -1,0 +1,63 @@
+{
+  "name": "@iushev/rbac-express",
+  "version": "2.0.0",
+  "description": "Express middleware for rbac",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run clean && npm run build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "rbac",
+    "authorization",
+    "permissions",
+    "express",
+    "middleware",
+    "typescript"
+  ],
+  "author": "Ivaylo Ushev",
+  "license": "MIT",
+  "peerDependencies": {
+    "express": "^5.0.0",
+    "@iushev/rbac": "^2.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.0",
+    "@types/node": "^26.4.1",
+    "@types/supertest": "^7.2.1",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "express": "^5.1.0",
+    "prettier": "^3.9.6",
+    "@iushev/rbac": "^2.0.0",
+    "supertest": "^7.2.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
+  }
+}

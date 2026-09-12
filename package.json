@@ -1,48 +1,28 @@
 {
-  "name": "@iushev/rbac",
-  "version": "1.0.66",
-  "private": false,
-  "author": "Ivaylo Ushev",
-  "description": "Role Based Access Control",
-  "license": "ISC",
-  "keywords": [],
-  "main": "lib/index",
-  "types": "lib/index",
+  "name": "rbac-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "RBAC packages: core library and storage implementations",
+  "workspaces": [
+    "rbac",
+    "rbac-db-sequelize",
+    "rbac-db-drizzle",
+    "rbac-express",
+    "rbac-react",
+    "rbac-tanstack"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "build": "rimraf ./lib && tsc",
-    "watch": "tsc -w --preserveWatchOutput",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand",
-    "coverage": "jest --coverage --runInBand",
-    "lint": "eslint src",
-    "preversion": "npm run build"
+    "build": "npm run build --workspaces",
+    "clean": "npm run clean --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "format:check": "npm run format:check --workspaces",
+    "release:version": "node scripts/set-version.mjs"
   },
-  "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.4",
-    "@types/lodash": "^4.17.21",
-    "@types/request-ip": "^0.0.41",
-    "@types/supertest": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.51.0",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "jest": "^30.2.0",
-    "prettier": "^3.7.4",
-    "rimraf": "^6.1.2",
-    "supertest": "^7.1.4",
-    "ts-jest": "^29.4.6",
-    "typescript": "^5.9.3"
-  },
-  "peerDependencies": {
-    "express": "^5.2.1 || ^4.22.1",
-    "http-status-codes": "^2.3.0",
-    "lodash": "^4.17.21",
-    "request-ip": "^3.3.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+  "license": "MIT"
 }

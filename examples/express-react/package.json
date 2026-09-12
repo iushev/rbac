@@ -1,0 +1,43 @@
+{
+  "name": "rbac-example-express-react",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Example blog: Express 5 backend and React frontend sharing one RBAC graph",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "tsx watch src/server/main.ts",
+    "dev:web": "vite",
+    "build": "npm run build:server && npm run build:web",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:web": "vite build",
+    "start": "NODE_ENV=production node dist/server/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit",
+    "clean": "rm -rf dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "@iushev/rbac": "file:../../rbac",
+    "@iushev/rbac-express": "file:../../rbac-express",
+    "@iushev/rbac-react": "file:../../rbac-react",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "concurrently": "^9.2.1",
+    "prettier": "^3.9.6",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2"
+  }
+}

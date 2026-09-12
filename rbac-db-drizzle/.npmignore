@@ -1,0 +1,11 @@
+src/
+node_modules/
+tsconfig.json
+vitest.config.ts
+*.tsbuildinfo
+coverage/
+tsconfig.eslint.json
+eslint.config.js
+.prettierrc.json
+.prettierignore
+docker-compose.yml

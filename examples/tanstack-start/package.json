@@ -1,0 +1,37 @@
+{
+  "name": "rbac-example-tanstack-start",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Example blog: TanStack Start server functions and React UI sharing one RBAC graph",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .tanstack",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@tanstack/react-router": "^1.170.0",
+    "@tanstack/react-start": "^1.168.0",
+    "@iushev/rbac": "file:../../rbac",
+    "@iushev/rbac-react": "file:../../rbac-react",
+    "@iushev/rbac-tanstack": "file:../../rbac-tanstack",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2"
+  }
+}
